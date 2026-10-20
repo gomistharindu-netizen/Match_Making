@@ -1,0 +1,9 @@
+node_modules
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/build
+.env*.local
+*.log
+.DS_Store
+Match_Making
