@@ -95,14 +95,14 @@ export default function MessagesPage() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {role === 'visitor' ? (
-          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-stone-200 shadow-sm text-center space-y-4 max-w-2xl mx-auto my-8">
-            <div className="w-16 h-16 bg-[#7A2943]/10 text-[#7A2943] border border-[#7A2943]/20 rounded-full flex items-center justify-center mx-auto shadow-sm">
-              <Lock className="w-8 h-8 text-[#7A2943]" />
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#F8E4EB] shadow-sm text-center space-y-4 max-w-2xl mx-auto my-8">
+            <div className="w-16 h-16 bg-[#F8E4EB] text-[#AD3B65] border border-[#AD3B65]/20 rounded-full flex items-center justify-center mx-auto shadow-sm">
+              <Lock className="w-8 h-8 text-[#AD3B65]" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#7A2943]">
+            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#352A30]">
               {language === 'si' ? 'පණිවිඩ කියවීමට සාමාජිකත්වය අවශ්‍යයි' : 'Registered Member Access Required'}
             </h2>
-            <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed font-serif">
+            <p className="text-xs sm:text-sm text-[#352A30]/75 max-w-md mx-auto leading-relaxed font-serif">
               {language === 'si'
                 ? 'පෞද්ගලික පණිවිඩ සහ යෝජනා හුවමාරුව කළ හැක්කේ සක්‍රිය සාමාජිකයින්ට පමණි. කරුණාකර Demo Toolbar එකෙන් "Active Member" තෝරා පරීක්ෂා කරන්න.'
                 : 'Private messaging is restricted to active members. Please switch your role to "Active Lifetime Member" on the top Demo Toolbar to simulate messaging.'}
@@ -110,7 +110,7 @@ export default function MessagesPage() {
             <div className="pt-2">
               <Link
                 href="/membership"
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#7A2943] to-[#9e3859] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:shadow-md transition"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:shadow-md transition"
               >
                 <span>{language === 'si' ? 'සාමාජිකත්වය ලබාගන්න' : 'Get Membership'}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-[#C6A56B]" />
@@ -120,16 +120,16 @@ export default function MessagesPage() {
         ) : (
           <>
             {/* Chat Container */}
-      <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-3 h-[680px]">
+      <div className="bg-white rounded-3xl border border-[#F8E4EB] shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-3 h-[680px]">
         {/* Left: Conversation List */}
-        <div className="border-r border-stone-200 flex flex-col bg-stone-50/50">
-          <div className="p-4 border-b border-stone-200">
-            <h3 className="text-xs font-bold text-stone-700 uppercase tracking-wider">
+        <div className="border-r border-[#F8E4EB] flex flex-col bg-[#FFF8FA]/60">
+          <div className="p-4 border-b border-[#F8E4EB]">
+            <h3 className="text-xs font-bold text-[#352A30] uppercase tracking-wider">
               {language === 'si' ? 'අනුමත වූ සංවාද' : 'Accepted Matches'}
             </h3>
           </div>
 
-          <div className="overflow-y-auto flex-1 divide-y divide-stone-100">
+          <div className="overflow-y-auto flex-1 divide-y divide-[#F8E4EB]/60">
             {conversations.map((conv) => {
               const active = conv.id === activeConvId;
               return (
@@ -137,7 +137,7 @@ export default function MessagesPage() {
                   key={conv.id}
                   onClick={() => setActiveConvId(conv.id)}
                   className={`w-full p-4 text-left transition flex items-start space-x-3 ${
-                    active ? 'bg-brand-50/80 border-l-4 border-brand-600' : 'hover:bg-white'
+                    active ? 'bg-[#F8E4EB]/80 border-l-4 border-[#AD3B65]' : 'hover:bg-white'
                   }`}
                 >
                   <img

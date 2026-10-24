@@ -10,38 +10,78 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Burgundy & Champagne Palette requested by user
+        // Deep Rose & Champagne Gold Theme Palette
         primary: {
-          DEFAULT: '#7A2943',
-          50: '#fbf3f5',
-          100: '#f7e6eb',
-          200: '#efccd7',
-          300: '#e3a6b8',
-          400: '#d17592',
-          500: '#ba4e71',
-          600: '#9e3859',
-          700: '#7A2943', // Main Burgundy
-          800: '#68243a',
-          900: '#582133',
-          950: '#340f1c',
+          DEFAULT: '#AD3B65', // Deep Rose - Buttons & Active states
+          50: '#FDF6F8',
+          100: '#F8E4EB', // Blush Pink
+          200: '#F2C8D6',
+          300: '#E5A1BA',
+          400: '#D46E94',
+          500: '#AD3B65',
+          600: '#972F55',
+          700: '#802446',
+          800: '#671C38',
+          900: '#53172D',
+          950: '#350B1B',
+        },
+        brand: {
+          DEFAULT: '#AD3B65',
+          50: '#FDF6F8',
+          100: '#F8E4EB',
+          200: '#F2C8D6',
+          300: '#E5A1BA',
+          400: '#D46E94',
+          500: '#AD3B65',
+          600: '#972F55',
+          700: '#802446',
+          800: '#671C38',
+          900: '#53172D',
         },
         accent: {
-          DEFAULT: '#C6A56B',
+          DEFAULT: '#C6A56B', // Champagne Gold - Accents & Highlights
           50: '#faf8f3',
           100: '#f3eedf',
           200: '#e7dcbd',
           300: '#d9c494',
-          400: '#C6A56B', // Main Champagne Gold
+          400: '#C6A56B',
           500: '#b79253',
           600: '#a17a43',
           700: '#815e37',
           800: '#6b4d32',
           900: '#593f2c',
         },
+        blush: {
+          DEFAULT: '#F8E4EB', // Blush Pink - Section backgrounds
+          50: '#FDFAFC',
+          100: '#F8E4EB',
+          200: '#F3CFDC',
+          300: '#E9A6BD',
+        },
+        ivory: {
+          DEFAULT: '#FFF8FA', // Soft Ivory Pink - Page background
+          50: '#FFFFFF',
+          100: '#FFF8FA',
+          200: '#FBF0F4',
+        },
+        plum: {
+          DEFAULT: '#352A30', // Dark Plum - Headings & Body text
+          50: '#F7F5F6',
+          100: '#EBE7E9',
+          200: '#D6CFD3',
+          300: '#B8ACB3',
+          400: '#8F7E88',
+          500: '#685962',
+          600: '#52434D',
+          700: '#42353E',
+          800: '#352A30',
+          900: '#261E23',
+          950: '#181316',
+        },
         surface: {
-          bg: '#FBF8F5',
+          bg: '#FFF8FA',
           card: '#FFFFFF',
-          text: '#30262B',
+          text: '#352A30',
         },
       },
       fontFamily: {

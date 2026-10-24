@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
           {/* Brand info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-[#7A2943] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] flex items-center justify-center shadow-md shadow-[#AD3B65]/30">
                 <Heart className="w-5 h-5 text-[#C6A56B] fill-[#C6A56B]" />
               </div>
               <span className="text-lg font-bold text-white tracking-tight">

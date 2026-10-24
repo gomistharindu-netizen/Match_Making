@@ -66,7 +66,7 @@ export default function HoroscopePage() {
       <div className="grid grid-cols-3 gap-2 max-w-2xl mx-auto text-xs font-bold text-center">
         <div className={`p-2.5 rounded-xl border transition ${
           activeStep === 1
-            ? 'bg-[#7A2943] text-white border-[#7A2943] shadow-md shadow-[#7A2943]/20'
+            ? 'bg-[#AD3B65] text-white border-[#AD3B65] shadow-md shadow-[#AD3B65]/20'
             : activeStep > 1
             ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
             : 'bg-white text-stone-400 border-stone-200'
@@ -76,7 +76,7 @@ export default function HoroscopePage() {
 
         <div className={`p-2.5 rounded-xl border transition ${
           activeStep === 2
-            ? 'bg-[#7A2943] text-white border-[#7A2943] shadow-md shadow-[#7A2943]/20'
+            ? 'bg-[#AD3B65] text-white border-[#AD3B65] shadow-md shadow-[#AD3B65]/20'
             : activeStep > 2
             ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
             : 'bg-white text-stone-400 border-stone-200'

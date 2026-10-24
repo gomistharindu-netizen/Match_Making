@@ -37,14 +37,14 @@ export const PageHeaderBanner: React.FC<PageHeaderBannerProps> = ({
       />
       
       {/* Luxury Royal Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#4A1222]/95 via-[#300C16]/90 to-stone-950/90" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#53172D]/95 via-[#352A30]/95 to-[#181316]/95" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#181316]/80 via-transparent to-black/40" />
 
       {/* Main Content Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-4">
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center space-x-2 text-xs font-serif text-[#C6A56B]/90">
+        <div className="flex items-center space-x-2 text-xs font-serif text-[#C6A56B]">
           <Link href="/" className="hover:text-white transition flex items-center space-x-1">
             <Home className="w-3.5 h-3.5" />
             <span>{language === 'si' ? 'මුල් පිටුව' : 'Home'}</span>
@@ -55,7 +55,7 @@ export const PageHeaderBanner: React.FC<PageHeaderBannerProps> = ({
 
         {/* Badge & Headings */}
         <div className="max-w-3xl space-y-2.5">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#7A2943]/80 backdrop-blur-md text-[#FBF8F5] text-xs font-bold tracking-widest uppercase shadow-md border border-[#C6A56B]/40 ring-1 ring-white/10">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#AD3B65]/90 backdrop-blur-md text-[#FFF8FA] text-xs font-bold tracking-widest uppercase shadow-md shadow-[#AD3B65]/25 border border-[#C6A56B]/50 ring-1 ring-white/10">
             <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
             <span className="font-serif">{badgeText}</span>
           </div>

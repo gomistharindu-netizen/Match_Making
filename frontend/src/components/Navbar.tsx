@@ -32,14 +32,14 @@ export const Navbar: React.FC = () => {
     <header className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 pt-3 sm:pt-4 pointer-events-none transition-all duration-300">
       <div className="max-w-7xl mx-auto pointer-events-auto">
         {/* Floating Rounded Translucent Bar */}
-        <div className="rounded-full bg-white/85 backdrop-blur-xl shadow-xl shadow-stone-900/10 border border-white/70 px-4 sm:px-6 py-2 flex items-center justify-between transition gap-2">
+        <div className="rounded-full bg-white/90 backdrop-blur-xl shadow-xl shadow-[#352A30]/5 border border-[#F8E4EB] px-4 sm:px-6 py-2 flex items-center justify-between transition gap-2">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center space-x-2.5 group shrink-0 whitespace-nowrap">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-[#7A2943] to-[#9e3859] flex items-center justify-center shadow-md group-hover:scale-105 transition shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] flex items-center justify-center shadow-md shadow-[#AD3B65]/25 group-hover:scale-105 transition shrink-0">
               <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[#C6A56B] fill-[#C6A56B]" />
             </div>
             <div>
-              <span className="block text-base sm:text-lg font-extrabold tracking-tight text-[#7A2943] leading-none whitespace-nowrap">
+              <span className="block text-base sm:text-lg font-extrabold tracking-tight text-[#352A30] leading-none whitespace-nowrap">
                 {t.brandName}
               </span>
               <span className="hidden sm:block text-[10px] font-semibold text-[#C6A56B] tracking-wider mt-0.5 whitespace-nowrap">
@@ -58,8 +58,8 @@ export const Navbar: React.FC = () => {
                   href={link.href}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 relative flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
                     active
-                      ? 'text-[#7A2943] bg-[#7A2943]/10 shadow-sm'
-                      : 'text-[#30262B] hover:text-[#7A2943] hover:bg-stone-100/70'
+                      ? 'text-[#AD3B65] bg-[#F8E4EB] shadow-sm'
+                      : 'text-[#352A30] hover:text-[#AD3B65] hover:bg-[#F8E4EB]/50'
                   }`}
                 >
                   <span className="whitespace-nowrap">{link.label}</span>
@@ -78,7 +78,7 @@ export const Navbar: React.FC = () => {
             {/* Language Switcher Pill */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-stone-100 hover:bg-stone-200 text-[#30262B] transition border border-stone-200/80 whitespace-nowrap shrink-0"
+              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-[#FFF8FA] hover:bg-[#F8E4EB] text-[#352A30] transition border border-[#F8E4EB] whitespace-nowrap shrink-0"
               title="Toggle Language"
             >
               <Globe className="w-3.5 h-3.5 text-[#C6A56B] shrink-0" />
@@ -95,7 +95,7 @@ export const Navbar: React.FC = () => {
             ) : (
               <Link
                 href="/membership"
-                className="bg-gradient-to-r from-[#7A2943] to-[#9e3859] hover:from-[#68243a] hover:to-[#7A2943] text-white text-xs font-bold px-4 py-2 rounded-full shadow-md hover:shadow-lg transition flex items-center space-x-1.5 whitespace-nowrap shrink-0"
+                className="bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] hover:from-[#972F55] hover:to-[#AD3B65] text-white text-xs font-bold px-4 py-2 rounded-full shadow-md shadow-[#AD3B65]/25 hover:shadow-lg transition flex items-center space-x-1.5 whitespace-nowrap shrink-0"
               >
                 <User className="w-3.5 h-3.5 text-[#C6A56B] shrink-0" />
                 <span className="whitespace-nowrap">{freeModeActive ? t.nav.register : `${t.nav.register}`}</span>
@@ -107,13 +107,13 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center space-x-1.5 lg:hidden">
             <button
               onClick={toggleLanguage}
-              className="px-2.5 py-1 text-xs font-bold rounded-full bg-stone-100 text-[#30262B] border border-stone-200"
+              className="px-2.5 py-1 text-xs font-bold rounded-full bg-[#FFF8FA] text-[#352A30] border border-[#F8E4EB]"
             >
               {language === 'si' ? 'EN' : 'සිං'}
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-full text-stone-700 hover:bg-stone-100 transition"
+              className="p-1.5 rounded-full text-[#352A30] hover:bg-[#F8E4EB] transition"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -122,7 +122,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-2 bg-white/95 backdrop-blur-xl border border-stone-200 shadow-2xl rounded-3xl p-4 space-y-2 animate-fadeIn">
+          <div className="lg:hidden mt-2 bg-white/95 backdrop-blur-xl border border-[#F8E4EB] shadow-2xl rounded-3xl p-4 space-y-2 animate-fadeIn">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -130,18 +130,18 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-4 py-2.5 rounded-2xl text-xs font-bold transition ${
                   isActive(link.href)
-                    ? 'text-[#7A2943] bg-[#7A2943]/10'
-                    : 'text-[#30262B] hover:bg-stone-50'
+                    ? 'text-[#AD3B65] bg-[#F8E4EB]'
+                    : 'text-[#352A30] hover:bg-[#FFF8FA]'
                 }`}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="pt-2 border-t border-stone-100">
+            <div className="pt-2 border-t border-[#F8E4EB]">
               <Link
                 href="/membership"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center bg-[#7A2943] text-white font-bold py-2.5 rounded-full text-xs shadow"
+                className="block w-full text-center bg-[#AD3B65] text-white font-bold py-2.5 rounded-full text-xs shadow-md shadow-[#AD3B65]/25"
               >
                 {t.nav.register}
               </Link>

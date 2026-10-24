@@ -66,7 +66,7 @@ export default function HomePage() {
           {/* Vertical Middle Area for Royal Headline & Tagline (Vertically Centered in Available Space) */}
           <div className="flex-1 flex flex-col justify-center max-w-2xl text-center sm:text-left mx-auto sm:mx-0 py-8 sm:py-12">
             <div className="space-y-3">
-              <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-[#7A2943]/85 backdrop-blur-md text-[#FBF8F5] text-xs font-bold tracking-widest uppercase shadow-lg border border-[#C6A56B]/50 ring-1 ring-white/10 mb-1">
+              <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-[#AD3B65]/90 backdrop-blur-md text-[#FFF8FA] text-xs font-bold tracking-widest uppercase shadow-lg shadow-[#AD3B65]/25 border border-[#C6A56B]/50 ring-1 ring-white/10 mb-1">
                 <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
                 <span className="font-serif">{language === 'si' ? 'විශ්වාසනීය රාජකීය මංගල සේවාව' : "Sri Lanka's Royal Matrimony"}</span>
               </div>
@@ -109,8 +109,8 @@ export default function HomePage() {
                     onClick={() => setSeekingGender('groom')}
                     className={`flex-1 lg:flex-none py-2 px-3 rounded-xl text-xs font-extrabold transition-all duration-200 flex items-center justify-center space-x-1.5 border shadow-sm ${
                       seekingGender === 'groom'
-                        ? 'bg-[#7A2943] text-white border-[#7A2943] shadow-md shadow-[#7A2943]/30'
-                        : 'bg-white/50 hover:bg-white/70 text-[#30262B] border-white/60 backdrop-blur-md'
+                        ? 'bg-[#AD3B65] text-white border-[#AD3B65] shadow-md shadow-[#AD3B65]/35'
+                        : 'bg-white/60 hover:bg-white/80 text-[#352A30] border-white/70 backdrop-blur-md'
                     }`}
                   >
                     <span className="text-sm">🤵</span>
@@ -122,8 +122,8 @@ export default function HomePage() {
                     onClick={() => setSeekingGender('bride')}
                     className={`flex-1 lg:flex-none py-2 px-3 rounded-xl text-xs font-extrabold transition-all duration-200 flex items-center justify-center space-x-1.5 border shadow-sm ${
                       seekingGender === 'bride'
-                        ? 'bg-[#7A2943] text-white border-[#7A2943] shadow-md shadow-[#7A2943]/30'
-                        : 'bg-white/50 hover:bg-white/70 text-[#30262B] border-white/60 backdrop-blur-md'
+                        ? 'bg-[#AD3B65] text-white border-[#AD3B65] shadow-md shadow-[#AD3B65]/35'
+                        : 'bg-white/60 hover:bg-white/80 text-[#352A30] border-white/70 backdrop-blur-md'
                     }`}
                   >
                     <span className="text-sm">👰</span>
@@ -134,15 +134,15 @@ export default function HomePage() {
                 {/* 2. Middle: Horizontal Filters Grid (Glass Cards with Specular Highlights) */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 flex-1">
                   {/* NATIONALITY */}
-                  <div className="bg-white/55 hover:bg-white/75 focus-within:bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-white/60 shadow-sm transition duration-200">
-                    <label className="block text-[10px] font-extrabold text-[#7A2943] uppercase tracking-wider mb-0.5">
+                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                    <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'ජාතිකත්වය' : 'NATIONALITY'}
                     </label>
                     <div className="relative">
                       <select
                         value={nationality}
                         onChange={(e) => setNationality(e.target.value)}
-                        className="w-full bg-transparent text-[#30262B] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
+                        className="w-full bg-transparent text-[#352A30] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
                       >
                         <option value="all" className="bg-white text-stone-900">{language === 'si' ? 'සියල්ල (All)' : 'All Nationalities'}</option>
                         <option value="sri_lankan" className="bg-white text-stone-900">Sri Lankan (දේශීය)</option>
@@ -153,15 +153,15 @@ export default function HomePage() {
                   </div>
 
                   {/* LOCATION / DISTRICT */}
-                  <div className="bg-white/55 hover:bg-white/75 focus-within:bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-white/60 shadow-sm transition duration-200">
-                    <label className="block text-[10px] font-extrabold text-[#7A2943] uppercase tracking-wider mb-0.5">
+                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                    <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'දිස්ත්‍රික්කය / රට' : 'LOCATION'}
                     </label>
                     <div className="relative">
                       <select
                         value={district}
                         onChange={(e) => setDistrict(e.target.value)}
-                        className="w-full bg-transparent text-[#30262B] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
+                        className="w-full bg-transparent text-[#352A30] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
                       >
                         <option value="all" className="bg-white text-stone-900">{language === 'si' ? 'සියලුම ප්‍රදේශ' : 'All Locations'}</option>
                         <option value="Colombo" className="bg-white text-stone-900">Colombo (කොළඹ)</option>
@@ -177,15 +177,15 @@ export default function HomePage() {
                   </div>
 
                   {/* AGE RANGE */}
-                  <div className="bg-white/55 hover:bg-white/75 focus-within:bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-white/60 shadow-sm transition duration-200">
-                    <label className="block text-[10px] font-extrabold text-[#7A2943] uppercase tracking-wider mb-0.5">
+                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                    <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'වයස් පරාසය' : 'AGE RANGE'}
                     </label>
                     <div className="relative">
                       <select
                         value={ageRange}
                         onChange={(e) => setAgeRange(e.target.value)}
-                        className="w-full bg-transparent text-[#30262B] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
+                        className="w-full bg-transparent text-[#352A30] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
                       >
                         <option value="all" className="bg-white text-stone-900">{language === 'si' ? 'ඕනෑම වයසක්' : 'All Ages'}</option>
                         <option value="18-25" className="bg-white text-stone-900">18 - 25 {language === 'si' ? 'වසර' : 'Yrs'}</option>
@@ -199,15 +199,15 @@ export default function HomePage() {
                   </div>
 
                   {/* RELIGION */}
-                  <div className="bg-white/55 hover:bg-white/75 focus-within:bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-white/60 shadow-sm transition duration-200">
-                    <label className="block text-[10px] font-extrabold text-[#7A2943] uppercase tracking-wider mb-0.5">
+                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                    <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'ආගම' : 'RELIGION'}
                     </label>
                     <div className="relative">
                       <select
                         value={religion}
                         onChange={(e) => setReligion(e.target.value)}
-                        className="w-full bg-transparent text-[#30262B] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
+                        className="w-full bg-transparent text-[#352A30] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
                       >
                         <option value="all" className="bg-white text-stone-900">{language === 'si' ? 'සියලුම ආගම්' : 'All Religions'}</option>
                         <option value="Buddhist" className="bg-white text-stone-900">Buddhist (බෞද්ධ)</option>
@@ -220,15 +220,15 @@ export default function HomePage() {
                   </div>
 
                   {/* HOROSCOPE */}
-                  <div className="bg-white/55 hover:bg-white/75 focus-within:bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-white/60 shadow-sm transition duration-200 col-span-2 sm:col-span-1">
-                    <label className="block text-[10px] font-extrabold text-[#7A2943] uppercase tracking-wider mb-0.5">
+                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200 col-span-2 sm:col-span-1">
+                    <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'කේන්ද්‍රය' : 'HOROSCOPE'}
                     </label>
                     <div className="relative">
                       <select
                         value={horoscopeOnly ? 'with_horoscope' : 'all'}
                         onChange={(e) => setHoroscopeOnly(e.target.value === 'with_horoscope')}
-                        className="w-full bg-transparent text-[#30262B] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
+                        className="w-full bg-transparent text-[#352A30] font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none truncate"
                       >
                         <option value="all" className="bg-white text-stone-900">{language === 'si' ? 'සියල්ල' : 'All Proposals'}</option>
                         <option value="with_horoscope" className="bg-white text-stone-900">{language === 'si' ? 'කේන්ද්‍රය සහිත පමණි' : 'With Horoscope'}</option>
@@ -241,7 +241,7 @@ export default function HomePage() {
                 {/* 3. Right: FIND PROPOSALS NOW Button */}
                 <button
                   type="submit"
-                  className="w-full lg:w-auto self-stretch px-7 py-3.5 lg:py-0 bg-gradient-to-r from-[#7A2943] via-[#8e314e] to-[#7A2943] hover:from-[#601e33] hover:to-[#7A2943] text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-xl shadow-[#7A2943]/35 hover:shadow-2xl transition duration-200 flex items-center justify-center space-x-2 shrink-0 group min-h-[46px] lg:min-h-0 border border-white/30 active:scale-95"
+                  className="w-full lg:w-auto self-stretch px-7 py-3.5 lg:py-0 bg-gradient-to-r from-[#AD3B65] via-[#972F55] to-[#802446] hover:from-[#802446] hover:to-[#671C38] text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-xl shadow-[#AD3B65]/35 hover:shadow-2xl transition duration-200 flex items-center justify-center space-x-2 shrink-0 group min-h-[46px] lg:min-h-0 border border-white/30 active:scale-95"
                 >
                   <Search className="w-4 h-4 text-[#C6A56B] group-hover:scale-110 transition-transform" />
                   <span>{language === 'si' ? 'යෝජනා සොයන්න' : 'FIND PROPOSALS NOW'}</span>
@@ -254,18 +254,18 @@ export default function HomePage() {
 
       {/* ELEGANT WELCOME SECTION (Below Hero) */}
       <section className="max-w-4xl mx-auto px-4 text-center space-y-4 pt-4">
-        <div className="inline-flex items-center space-x-2 bg-[#7A2943]/10 text-[#7A2943] px-4 py-1.5 rounded-full text-xs font-bold tracking-wide border border-[#7A2943]/20">
+        <div className="inline-flex items-center space-x-2 bg-[#F8E4EB] text-[#AD3B65] px-4 py-1.5 rounded-full text-xs font-bold tracking-wide border border-[#AD3B65]/20 shadow-sm">
           <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
           <span>{language === 'si' ? 'සාදරයෙන් පිළිගනිමු' : 'Welcome to Sri Kalyana'}</span>
         </div>
 
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-[#7A2943] tracking-tight">
+        <h2 className="text-2xl sm:text-4xl font-extrabold text-[#352A30] tracking-tight">
           {language === 'si'
             ? 'ශ්‍රී ලංකාවේ විශ්වාසනීයම සහ ගෞරවනීය මංගල සේවාව'
             : 'The Most Trusted & Respected Matrimonial Service in Sri Lanka'}
         </h2>
 
-        <p className="text-xs sm:text-sm text-stone-600 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#352A30]/80 max-w-2xl mx-auto leading-relaxed">
           {language === 'si'
             ? 'ශ්‍රී ලාංකික පාරම්පරික සාරධර්ම සුරකිමින්, දෙපාර්ශවයේ සෘජු අනුමැතියෙන් පමණක් දුරකථන අංක හුවමාරු වන සහ ප්‍රවීණ ජ්‍යොතිෂවේදීන්ගේ සහතික ලත් කේන්ද්‍ර ගැලපීමේ පහසුකම් සහිත වේදිකාව.'
             : 'Connecting respectable families across Sri Lanka and worldwide with owner-approved contact privacy, lifetime registration, and professional astrological matching.'}
@@ -274,14 +274,14 @@ export default function HomePage() {
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <Link
             href="/browse"
-            className="bg-[#7A2943] hover:bg-[#9e3859] text-white text-xs font-bold px-6 py-2.5 rounded-full shadow-md hover:shadow-lg transition flex items-center space-x-1.5"
+            className="bg-[#AD3B65] hover:bg-[#972F55] text-white text-xs font-bold px-6 py-2.5 rounded-full shadow-md shadow-[#AD3B65]/25 hover:shadow-lg transition flex items-center space-x-1.5"
           >
             <Search className="w-3.5 h-3.5 text-[#C6A56B]" />
             <span>{language === 'si' ? 'යෝජනා පිරික්සන්න' : 'Browse Proposals'}</span>
           </Link>
           <Link
             href="/horoscope"
-            className="bg-[#C6A56B] hover:bg-[#b79253] text-[#30262B] text-xs font-bold px-6 py-2.5 rounded-full shadow-md hover:shadow-lg transition flex items-center space-x-1.5"
+            className="bg-[#C6A56B] hover:bg-[#b79253] text-[#352A30] text-xs font-bold px-6 py-2.5 rounded-full shadow-md hover:shadow-lg transition flex items-center space-x-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{language === 'si' ? 'කේන්ද්‍ර ගැලපීම' : 'Horoscope Service'}</span>
@@ -289,57 +289,59 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CORE VALUE PILLARS */}
+      {/* CORE VALUE PILLARS (Section Background: Blush Pink #F8E4EB) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-3 hover:shadow-md transition">
-            <div className="w-12 h-12 rounded-2xl bg-[#7A2943]/10 text-[#7A2943] flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6" />
+        <div className="bg-[#F8E4EB]/70 border border-[#F8E4EB] p-6 sm:p-10 rounded-[32px] shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white p-6 rounded-2xl border border-[#F8E4EB] shadow-sm space-y-3 hover:shadow-md transition">
+              <div className="w-12 h-12 rounded-2xl bg-[#F8E4EB] text-[#AD3B65] flex items-center justify-center">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-[#352A30] text-base">{t.features.verifiedTitle}</h3>
+              <p className="text-xs text-[#352A30]/75 leading-relaxed">{t.features.verifiedDesc}</p>
             </div>
-            <h3 className="font-bold text-[#30262B] text-base">{t.features.verifiedTitle}</h3>
-            <p className="text-xs text-stone-600 leading-relaxed">{t.features.verifiedDesc}</p>
-          </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-3 hover:shadow-md transition">
-            <div className="w-12 h-12 rounded-2xl bg-[#C6A56B]/15 text-[#815e37] flex items-center justify-center">
-              <Lock className="w-6 h-6" />
+            <div className="bg-white p-6 rounded-2xl border border-[#F8E4EB] shadow-sm space-y-3 hover:shadow-md transition">
+              <div className="w-12 h-12 rounded-2xl bg-[#C6A56B]/20 text-[#815e37] flex items-center justify-center">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-[#352A30] text-base">{t.features.privacyTitle}</h3>
+              <p className="text-xs text-[#352A30]/75 leading-relaxed">{t.features.privacyDesc}</p>
             </div>
-            <h3 className="font-bold text-[#30262B] text-base">{t.features.privacyTitle}</h3>
-            <p className="text-xs text-stone-600 leading-relaxed">{t.features.privacyDesc}</p>
-          </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-3 hover:shadow-md transition">
-            <div className="w-12 h-12 rounded-2xl bg-[#7A2943]/10 text-[#7A2943] flex items-center justify-center">
-              <Sparkles className="w-6 h-6" />
+            <div className="bg-white p-6 rounded-2xl border border-[#F8E4EB] shadow-sm space-y-3 hover:shadow-md transition">
+              <div className="w-12 h-12 rounded-2xl bg-[#F8E4EB] text-[#AD3B65] flex items-center justify-center">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-[#352A30] text-base">{t.features.horoscopeTitle}</h3>
+              <p className="text-xs text-[#352A30]/75 leading-relaxed">{t.features.horoscopeDesc}</p>
             </div>
-            <h3 className="font-bold text-[#30262B] text-base">{t.features.horoscopeTitle}</h3>
-            <p className="text-xs text-stone-600 leading-relaxed">{t.features.horoscopeDesc}</p>
-          </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-3 hover:shadow-md transition">
-            <div className="w-12 h-12 rounded-2xl bg-[#C6A56B]/15 text-[#815e37] flex items-center justify-center">
-              <Globe className="w-6 h-6" />
+            <div className="bg-white p-6 rounded-2xl border border-[#F8E4EB] shadow-sm space-y-3 hover:shadow-md transition">
+              <div className="w-12 h-12 rounded-2xl bg-[#C6A56B]/20 text-[#815e37] flex items-center justify-center">
+                <Globe className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-[#352A30] text-base">{t.features.globalTitle}</h3>
+              <p className="text-xs text-[#352A30]/75 leading-relaxed">{t.features.globalDesc}</p>
             </div>
-            <h3 className="font-bold text-[#30262B] text-base">{t.features.globalTitle}</h3>
-            <p className="text-xs text-stone-600 leading-relaxed">{t.features.globalDesc}</p>
           </div>
         </div>
       </section>
 
       {/* FEATURED PROPOSALS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 border-b border-stone-200 pb-4">
+        <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 border-b border-[#F8E4EB] pb-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#30262B] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#352A30] tracking-tight">
               {t.profiles.title}
             </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
+            <p className="text-xs sm:text-sm text-[#352A30]/70 mt-1">
               {t.profiles.subtitle}
             </p>
           </div>
           <Link
             href="/browse"
-            className="text-xs sm:text-sm font-bold text-[#7A2943] hover:text-[#9e3859] flex items-center space-x-1 transition"
+            className="text-xs sm:text-sm font-bold text-[#AD3B65] hover:text-[#972F55] flex items-center space-x-1 transition"
           >
             <span>{language === 'si' ? 'සියලුම යෝජනා බලන්න' : 'View All Proposals'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -359,9 +361,9 @@ export default function HomePage() {
 
       {/* STANDALONE HOROSCOPE MATCHING BANNER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-[#7A2943] via-[#582133] to-[#340f1c] rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-xl border border-[#C6A56B]/30">
+        <div className="bg-gradient-to-r from-[#4D1429] via-[#352A30] to-[#261E23] rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-xl border border-[#C6A56B]/30">
           <div className="relative z-10 max-w-2xl space-y-4">
-            <span className="inline-block bg-[#C6A56B] text-[#30262B] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="inline-block bg-[#C6A56B] text-[#352A30] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               {t.horoscopePage.badge}
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
@@ -373,7 +375,7 @@ export default function HomePage() {
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <Link
                 href="/horoscope"
-                className="bg-[#C6A56B] hover:bg-[#b79253] text-[#30262B] font-bold px-6 py-3 rounded-full text-xs sm:text-sm shadow-xl transition flex items-center space-x-2"
+                className="bg-[#C6A56B] hover:bg-[#b79253] text-[#352A30] font-bold px-6 py-3 rounded-full text-xs sm:text-sm shadow-xl transition flex items-center space-x-2"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{language === 'si' ? 'කේන්ද්‍ර ගැලපීම ඇණවුම් කරන්න' : 'Order Horoscope Matching Now'}</span>

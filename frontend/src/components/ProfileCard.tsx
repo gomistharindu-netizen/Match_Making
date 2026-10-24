@@ -19,7 +19,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
   const isAccepted = profile.interestStatus === 'accepted';
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-lg transition duration-300 flex flex-col group">
+    <div className="bg-white rounded-2xl border border-[#F8E4EB] overflow-hidden shadow-sm hover:shadow-xl hover:border-[#AD3B65]/30 transition duration-300 flex flex-col group">
       {/* Top Image & Badges */}
       <div className="relative h-64 w-full bg-stone-100 overflow-hidden">
         <img
@@ -33,7 +33,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
 
         {/* Top Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-          <span className="bg-[#7A2943]/90 text-white font-mono text-xs px-2.5 py-1 rounded-md font-bold tracking-wide backdrop-blur border border-white/20">
+          <span className="bg-[#AD3B65]/90 text-white font-mono text-xs px-2.5 py-1 rounded-md font-bold tracking-wide backdrop-blur border border-white/20 shadow-sm">
             {profile.code}
           </span>
           {profile.isOverseas && (
@@ -45,7 +45,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
         </div>
 
         {/* Verified Badge */}
-        <div className="absolute top-3 right-3 bg-white/90 text-emerald-700 text-xs px-2 py-1 rounded-md font-semibold flex items-center space-x-1 backdrop-blur shadow">
+        <div className="absolute top-3 right-3 bg-white/95 text-emerald-700 text-xs px-2 py-1 rounded-md font-semibold flex items-center space-x-1 backdrop-blur shadow">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>{t.profiles.verified}</span>
         </div>
@@ -75,12 +75,12 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
         <div className="space-y-2.5 text-xs text-stone-600">
           {/* Profession */}
           <div className="flex items-start space-x-2">
-            <Briefcase className="w-4 h-4 text-[#7A2943] mt-0.5 shrink-0" />
+            <Briefcase className="w-4 h-4 text-[#AD3B65] mt-0.5 shrink-0" />
             <div>
-              <span className="font-semibold text-[#30262B] block text-sm">
+              <span className="font-semibold text-[#352A30] block text-sm">
                 {profile.occupation}
               </span>
-              <span className="text-stone-500 text-[11px]">
+              <span className="text-[#352A30]/70 text-[11px]">
                 {profile.workplace}
               </span>
             </div>
@@ -88,9 +88,9 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
 
           {/* Education */}
           <div className="flex items-start space-x-2">
-            <GraduationCap className="w-4 h-4 text-[#7A2943] mt-0.5 shrink-0" />
+            <GraduationCap className="w-4 h-4 text-[#AD3B65] mt-0.5 shrink-0" />
             <div>
-              <span className="text-stone-800 font-medium block">
+              <span className="text-[#352A30] font-medium block">
                 {profile.education}
               </span>
             </div>
@@ -98,10 +98,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
 
           {/* Key tags: Religion, Horoscope, Managed By */}
           <div className="pt-2 flex flex-wrap gap-1.5">
-            <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-[11px] font-medium">
+            <span className="bg-[#FFF8FA] text-[#352A30] border border-[#F8E4EB] px-2 py-0.5 rounded text-[11px] font-medium">
               {profile.religion}
             </span>
-            <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-[11px] font-medium">
+            <span className="bg-[#FFF8FA] text-[#352A30] border border-[#F8E4EB] px-2 py-0.5 rounded text-[11px] font-medium">
               {language === 'si' ? `භාරකරු: ${profile.managedBy}` : `Managed by: ${profile.managedBy}`}
             </span>
             {profile.horoscopeAvailable && (
@@ -116,10 +116,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
         </div>
 
         {/* Card Actions */}
-        <div className="pt-3 border-t border-stone-100 flex items-center gap-2">
+        <div className="pt-3 border-t border-[#F8E4EB] flex items-center gap-2">
           <button
             onClick={() => onOpenModal(profile)}
-            className="flex-1 bg-stone-100 hover:bg-stone-200 text-[#30262B] font-bold py-2 px-3 rounded-xl text-xs transition text-center"
+            className="flex-1 bg-[#FFF8FA] hover:bg-[#F8E4EB] text-[#352A30] font-bold py-2 px-3 rounded-xl text-xs transition text-center border border-[#F8E4EB]"
           >
             {t.profiles.viewDetails}
           </button>
@@ -131,7 +131,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                 : isPending
                 ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                : 'bg-[#7A2943] hover:bg-[#9e3859] text-white shadow hover:shadow-md'
+                : 'bg-[#AD3B65] hover:bg-[#972F55] text-white shadow-md shadow-[#AD3B65]/20 hover:shadow-lg'
             }`}
           >
             {isAccepted ? (

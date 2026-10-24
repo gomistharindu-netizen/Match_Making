@@ -37,7 +37,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto animate-fadeIn">
       <div className="relative bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-8 max-h-[90vh] flex flex-col">
         {/* Header bar */}
-        <div className="bg-[#7A2943] text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[#AD3B65] text-white px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <span className="font-mono text-sm font-bold bg-white/20 px-2.5 py-1 rounded-md text-[#C6A56B]">
               {profile.code}
@@ -264,7 +264,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
                 ? 'bg-emerald-600 text-white shadow'
                 : isPending
                 ? 'bg-amber-500 text-white shadow'
-                : 'bg-[#7A2943] hover:bg-[#9e3859] text-white shadow hover:shadow-md'
+                : 'bg-[#AD3B65] hover:bg-[#972F55] text-white shadow-md shadow-[#AD3B65]/20 hover:shadow-lg'
             }`}
           >
             <Heart className="w-4 h-4 fill-current" />

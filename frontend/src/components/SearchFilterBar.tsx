@@ -28,17 +28,17 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   const { language, t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-stone-200 space-y-4">
-      <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#F8E4EB] space-y-4">
+      <div className="flex items-center justify-between border-b border-[#F8E4EB] pb-3">
         <div className="flex items-center space-x-2">
-          <Filter className="w-5 h-5 text-brand-600" />
-          <h3 className="font-bold text-sm text-stone-900">
+          <Filter className="w-5 h-5 text-[#AD3B65]" />
+          <h3 className="font-bold text-sm text-[#352A30]">
             {t.profiles.filters}
           </h3>
         </div>
         <button
           onClick={onReset}
-          className="text-xs text-stone-500 hover:text-brand-600 flex items-center space-x-1 transition font-medium"
+          className="text-xs text-[#352A30]/60 hover:text-[#AD3B65] flex items-center space-x-1 transition font-medium"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>{t.profiles.clearFilters}</span>

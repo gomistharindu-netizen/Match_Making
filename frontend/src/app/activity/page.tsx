@@ -33,14 +33,14 @@ export default function ActivityPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {role === 'visitor' ? (
-          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-stone-200 shadow-sm text-center space-y-4 max-w-2xl mx-auto my-8">
-            <div className="w-16 h-16 bg-[#7A2943]/10 text-[#7A2943] border border-[#7A2943]/20 rounded-full flex items-center justify-center mx-auto shadow-sm">
-              <Lock className="w-8 h-8 text-[#7A2943]" />
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#F8E4EB] shadow-sm text-center space-y-4 max-w-2xl mx-auto my-8">
+            <div className="w-16 h-16 bg-[#F8E4EB] text-[#AD3B65] border border-[#AD3B65]/20 rounded-full flex items-center justify-center mx-auto shadow-sm">
+              <Lock className="w-8 h-8 text-[#AD3B65]" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#7A2943]">
+            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#352A30]">
               {language === 'si' ? 'නැරඹුම් ඉතිහාසය බැලීමට සාමාජිකත්වය අවශ්‍යයි' : 'Registered Member Access Required'}
             </h2>
-            <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed font-serif">
+            <p className="text-xs sm:text-sm text-[#352A30]/75 max-w-md mx-auto leading-relaxed font-serif">
               {language === 'si'
                 ? 'ඔබගේ Profile එක බැලූ අය සහ ඔබ බැලූ අය පිළිබඳ තොරතුරු බැලීමට කරුණාකර Demo Toolbar එකෙන් "Active Member" තෝරන්න.'
                 : 'Viewer activity tracking is reserved for active members. Please switch role to "Active Member" in the Demo Toolbar.'}
@@ -48,7 +48,7 @@ export default function ActivityPage() {
             <div className="pt-2">
               <Link
                 href="/membership"
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#7A2943] to-[#9e3859] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:shadow-md transition"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:shadow-md transition"
               >
                 <span>{language === 'si' ? 'සාමාජිකත්ව විස්තර බලන්න' : 'View Membership Plans'}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-[#C6A56B]" />
