@@ -256,7 +256,7 @@ export default function HomePage() {
       <section className="max-w-4xl mx-auto px-4 text-center space-y-4 pt-4">
         <div className="inline-flex items-center space-x-2 bg-[#F8E4EB] text-[#AD3B65] px-4 py-1.5 rounded-full text-xs font-bold tracking-wide border border-[#AD3B65]/20 shadow-sm">
           <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
-          <span>{language === 'si' ? 'සාදරයෙන් පිළිගනිමු' : 'Welcome to Sri Kalyana'}</span>
+          <span>{language === 'si' ? 'ජයතු ජය වෙත සාදරයෙන් පිළිගනිමු' : 'Welcome to Jayathu Jaya'}</span>
         </div>
 
         <h2 className="text-2xl sm:text-4xl font-extrabold text-[#352A30] tracking-tight">

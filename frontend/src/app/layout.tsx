@@ -6,7 +6,7 @@ import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Sri Kalyana Matrimony | ශ්‍රී කල්‍යාණ මංගල සේවාව',
+  title: 'Jayathu Jaya | ජයතු ජය මංගල සේවාව',
   description: 'Sri Lanka’s premier matrimonial and horoscope service for families locally and across the globe.',
 };
 
@@ -25,7 +25,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased min-h-screen flex flex-col bg-[#FBF8F5] text-[#30262B] selection:bg-primary-700 selection:text-white font-serif">
+      <body className="antialiased min-h-screen flex flex-col bg-[#FFF8FA] text-[#352A30] selection:bg-[#AD3B65] selection:text-white font-serif">
         <LanguageProvider>
           <DemoProvider>
             <Navbar />

@@ -163,7 +163,7 @@ export default function MembershipPage() {
               {paymentType === 'bank_transfer' && (
                 <div className="p-4 bg-stone-50 border border-stone-200 rounded-2xl text-xs space-y-2">
                   <span className="font-bold text-stone-800 block">Bank Account: Commercial Bank</span>
-                  <span className="text-stone-600 block">Account: 1000 2345 6789 (Sri Kalyana Matrimonial)</span>
+                  <span className="text-stone-600 block">Account: 1000 2345 6789 (Jayathu Jaya Matrimonial)</span>
                   <button
                     type="button"
                     onClick={() => setBankSlipUploaded(!bankSlipUploaded)}

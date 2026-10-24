@@ -150,7 +150,7 @@ export interface Translations {
 
 export const translations: Record<Language, Translations> = {
   en: {
-    brandName: 'Sri Kalyana Matrimony',
+    brandName: 'Jayathu Jaya',
     brandTagline: 'Trusted Marriage Proposals & Astrological Services',
     nav: {
       home: 'Home',
@@ -303,7 +303,7 @@ export const translations: Record<Language, Translations> = {
     },
   },
   si: {
-    brandName: 'ශ්‍රී කල්‍යාණ මංගල සේවාව',
+    brandName: 'ජයතු ජය',
     brandTagline: 'විශ්වාසනීය මංගල යෝජනා සහ ජ්‍යොතිෂ සේවාව',
     nav: {
       home: 'මුල් පිටුව',

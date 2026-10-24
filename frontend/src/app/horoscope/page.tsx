@@ -359,7 +359,7 @@ export default function HoroscopePage() {
                 </div>
                 <div>
                   <span className="text-stone-500 block text-[11px]">Account Name:</span>
-                  <span>Sri Kalyana Matrimonial Agency (Pvt) Ltd</span>
+                  <span>Jayathu Jaya Matrimonial Agency (Pvt) Ltd</span>
                 </div>
                 <div>
                   <span className="text-stone-500 block text-[11px]">Account Number:</span>
