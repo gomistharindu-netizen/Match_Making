@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Profile Management & Viewer Tracking
     Route::prefix('member')->group(function () {
         Route::put('/profile', [MemberController::class, 'updateProfile']);
+        Route::post('/photo', [MemberController::class, 'uploadPhoto']);
+        Route::delete('/photo/{id}', [MemberController::class, 'deletePhoto']);
         Route::post('/viewed/{profileCode}', [MemberController::class, 'recordView']);
         Route::get('/recently-viewed', [MemberController::class, 'recentlyViewed']);
         Route::get('/who-viewed-me', [MemberController::class, 'whoViewedMe']);

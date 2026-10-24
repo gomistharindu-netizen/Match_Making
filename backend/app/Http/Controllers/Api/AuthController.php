@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
 use App\Models\MemberProfile;
 use App\Models\Membership;
+use App\Models\ProfilePhoto;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -67,6 +68,32 @@ class AuthController extends Controller
             'publication_status' => 'approved', // Auto approved in initial test/free mode, or pending moderation
             'managed_by_type' => $validated['managed_by_type'] ?? 'self',
         ]);
+
+        // Handle uploaded photo or photo URL if present
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('profile_photos', 'public');
+            $photoUrl = url('storage/' . $path);
+            $profile->update(['primary_photo_url' => $photoUrl]);
+
+            ProfilePhoto::create([
+                'profile_id' => $profile->id,
+                'file_path' => $photoUrl,
+                'visibility' => 'public',
+                'moderation_status' => 'approved',
+                'is_primary' => true,
+                'sort_order' => 1,
+            ]);
+        } elseif ($request->filled('photo_url')) {
+            $profile->update(['primary_photo_url' => $request->photo_url]);
+            ProfilePhoto::create([
+                'profile_id' => $profile->id,
+                'file_path' => $request->photo_url,
+                'visibility' => 'public',
+                'moderation_status' => 'approved',
+                'is_primary' => true,
+                'sort_order' => 1,
+            ]);
+        }
 
         // Check Free Mode vs Paid Mode requirement
         $paymentRequired = filter_var(AdminSetting::get('registration_payment_required', 'false'), FILTER_VALIDATE_BOOLEAN);
@@ -190,6 +217,12 @@ class AuthController extends Controller
                 'partner_preferences' => $profile->partner_preferences,
                 'horoscope_available' => $profile->horoscope_available,
                 'primary_photo_url' => $profile->primary_photo_url,
+                'photos' => $profile->photos->map(fn($p) => [
+                    'id' => $p->id,
+                    'url' => $p->file_path,
+                    'is_primary' => $p->is_primary,
+                    'visibility' => $p->visibility,
+                ]),
                 'publication_status' => $profile->publication_status,
                 'managed_by_type' => $profile->managed_by_type,
                 'is_paused' => $profile->is_paused,

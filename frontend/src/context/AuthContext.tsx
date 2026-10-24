@@ -11,11 +11,40 @@ export interface AuthUser {
   is_active_member: boolean;
 }
 
+export interface ProfilePhotoItem {
+  id: number;
+  url: string;
+  is_primary: boolean;
+  visibility: string;
+}
+
 export interface AuthProfile {
   id: number;
   profile_code: string;
+  full_name_private?: string;
   gender?: string;
+  age?: number;
+  birth_date?: string;
+  district?: string;
+  city?: string;
+  country?: string;
+  residence_status?: string;
+  religion?: string;
+  caste?: string;
+  height_feet?: number;
+  height_inches?: number;
+  education_level?: string;
+  profession?: string;
+  employed_in?: string;
+  monthly_income_lkr?: string;
+  family_background?: string;
+  partner_preferences?: string;
+  horoscope_available?: boolean;
   primary_photo_url?: string;
+  photos?: ProfilePhotoItem[];
+  publication_status?: string;
+  managed_by_type?: string;
+  is_paused?: boolean;
 }
 
 interface AuthContextType {
@@ -25,7 +54,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (login: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  register: (data: Record<string, any>) => Promise<{ success: boolean; message?: string }>;
+  register: (data: Record<string, any> | FormData) => Promise<{ success: boolean; message?: string }>;
+  uploadPhoto: (file: File, isPrimary?: boolean, visibility?: string) => Promise<{ success: boolean; photo_url?: string; message?: string }>;
+  updateProfileDetails: (details: Record<string, any>) => Promise<{ success: boolean; message?: string }>;
+  refreshProfile: () => Promise<void>;
   logout: () => void;
 }
 
@@ -38,6 +70,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<AuthProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const refreshProfile = async () => {
+    const currentToken = token || (typeof window !== 'undefined' ? localStorage.getItem('jj_auth_token') : null);
+    if (!currentToken) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          setUser(data.user);
+          localStorage.setItem('jj_auth_user', JSON.stringify(data.user));
+        }
+        if (data.profile) {
+          setProfile(data.profile);
+          localStorage.setItem('jj_auth_profile', JSON.stringify(data.profile));
+        }
+      }
+    } catch (e) {
+      // Error fetching me
+    }
+  };
 
   // Load auth state from localStorage on initial client render
   useEffect(() => {
@@ -75,7 +135,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           })
           .catch(() => {
-            // Token invalidated on server
             logout();
           })
           .finally(() => setIsLoading(false));
@@ -129,15 +188,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (formData: Record<string, any>): Promise<{ success: boolean; message?: string }> => {
+  const register = async (formData: Record<string, any> | FormData): Promise<{ success: boolean; message?: string }> => {
     try {
+      const isFormData = typeof FormData !== 'undefined' && formData instanceof FormData;
+
+      const headers: Record<string, string> = {
+        Accept: 'application/json',
+      };
+
+      if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+      }
+
       const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers,
+        body: isFormData ? formData : JSON.stringify(formData),
       });
 
       const data = await res.json();
@@ -165,6 +231,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         success: false,
         message: 'Could not connect to server. Please check your connection.',
       };
+    }
+  };
+
+  const uploadPhoto = async (
+    file: File,
+    isPrimary: boolean = true,
+    visibility: string = 'public'
+  ): Promise<{ success: boolean; photo_url?: string; message?: string }> => {
+    const currentToken = token || (typeof window !== 'undefined' ? localStorage.getItem('jj_auth_token') : null);
+    if (!currentToken) return { success: false, message: 'Please login first' };
+
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+      formData.append('is_primary', isPrimary ? '1' : '0');
+      formData.append('visibility', visibility);
+
+      const res = await fetch(`${API_BASE_URL}/member/photo`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+          Accept: 'application/json',
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, message: data.message || 'Photo upload failed' };
+      }
+
+      if (data.photo_url) {
+        setProfile((prev) => (prev ? { ...prev, primary_photo_url: data.photo_url } : null));
+        await refreshProfile();
+      }
+
+      return { success: true, photo_url: data.photo_url };
+    } catch (e: any) {
+      return { success: false, message: 'Photo upload error. Check your file format and size.' };
+    }
+  };
+
+  const updateProfileDetails = async (details: Record<string, any>): Promise<{ success: boolean; message?: string }> => {
+    const currentToken = token || (typeof window !== 'undefined' ? localStorage.getItem('jj_auth_token') : null);
+    if (!currentToken) return { success: false, message: 'Please login first' };
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/member/profile`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(details),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, message: data.message || 'Update failed' };
+      }
+
+      await refreshProfile();
+      return { success: true };
+    } catch (e) {
+      return { success: false, message: 'Network error updating profile' };
     }
   };
 
@@ -197,6 +329,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
+        uploadPhoto,
+        updateProfileDetails,
+        refreshProfile,
         logout,
       }}
     >

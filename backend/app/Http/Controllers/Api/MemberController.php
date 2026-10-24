@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\MemberProfile;
+use App\Models\ProfilePhoto;
 use App\Models\RecentlyViewed;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -153,5 +154,71 @@ class MemberController extends Controller
             });
 
         return response()->json(['items' => $items]);
+    }
+
+    /**
+     * Upload / Update Profile Photo
+     */
+    public function uploadPhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240', // Max 10MB
+            'is_primary' => 'nullable|boolean',
+            'visibility' => 'nullable|in:public,members_only,hidden',
+        ]);
+
+        $profile = $request->user()->profile;
+
+        if (!$profile) {
+            return response()->json(['message' => 'Profile not found'], 404);
+        }
+
+        $path = $request->file('photo')->store('profile_photos', 'public');
+        $photoUrl = url('storage/' . $path);
+
+        $isPrimary = $request->boolean('is_primary', true);
+
+        if ($isPrimary) {
+            ProfilePhoto::where('profile_id', $profile->id)->update(['is_primary' => false]);
+            $profile->update(['primary_photo_url' => $photoUrl]);
+        }
+
+        $photo = ProfilePhoto::create([
+            'profile_id' => $profile->id,
+            'file_path' => $photoUrl,
+            'visibility' => $request->get('visibility', 'public'),
+            'moderation_status' => 'approved',
+            'is_primary' => $isPrimary,
+            'sort_order' => ProfilePhoto::where('profile_id', $profile->id)->count() + 1,
+        ]);
+
+        return response()->json([
+            'message' => 'Photo uploaded successfully',
+            'photo_url' => $photoUrl,
+            'photo' => $photo,
+            'profile' => $profile->fresh(),
+        ], 201);
+    }
+
+    /**
+     * Delete Profile Photo
+     */
+    public function deletePhoto(Request $request, int $photoId): JsonResponse
+    {
+        $profile = $request->user()->profile;
+        $photo = ProfilePhoto::where('id', $photoId)->where('profile_id', $profile->id)->firstOrFail();
+        $photo->delete();
+
+        // If this was primary photo, set another one as primary if available
+        if ($photo->is_primary) {
+            $next = ProfilePhoto::where('profile_id', $profile->id)->first();
+            $newUrl = $next ? $next->file_path : null;
+            if ($next) {
+                $next->update(['is_primary' => true]);
+            }
+            $profile->update(['primary_photo_url' => $newUrl]);
+        }
+
+        return response()->json(['message' => 'Photo deleted successfully']);
     }
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { Heart, User, Mail, Phone, Lock, Calendar, MapPin, Briefcase, GraduationCap, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Heart, User, Mail, Phone, Lock, Calendar, MapPin, Briefcase, GraduationCap, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, Camera, Upload } from 'lucide-react';
 
 export default function RegisterPage() {
   const { language, t } = useLanguage();
@@ -28,6 +28,10 @@ export default function RegisterPage() {
     managed_by_type: 'self',
   });
 
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +48,14 @@ export default function RegisterPage() {
     });
   };
 
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhotoFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -54,7 +66,16 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
-    const result = await register(formData);
+
+    const dataToSend = new FormData();
+    Object.entries(formData).forEach(([k, v]) => {
+      dataToSend.append(k, v);
+    });
+    if (photoFile) {
+      dataToSend.append('photo', photoFile);
+    }
+
+    const result = await register(dataToSend);
     setLoading(false);
 
     if (result.success) {
@@ -189,6 +210,41 @@ export default function RegisterPage() {
                 <span className="w-6 h-6 rounded-full bg-[#F8E4EB] text-[#AD3B65] flex items-center justify-center text-xs">2</span>
                 <span>{language === 'si' ? 'මංගල යෝජනා තොරතුරු (Matrimonial Profile)' : 'Matrimonial Profile Details'}</span>
               </h3>
+
+              {/* Profile Photo Uploader */}
+              <div className="mb-6 p-4 rounded-2xl bg-[#FFF8FA] border border-[#F8E4EB] flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-white border-2 border-[#F8E4EB] shrink-0 shadow-sm flex items-center justify-center">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 text-[#C6A56B]/60" />
+                  )}
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <p className="text-xs font-bold text-[#352A30]">
+                    {language === 'si' ? 'Profile ඡායාරූපය (විකල්ප - පසුවද එක්කළ හැක)' : 'Profile Photo (Optional)'}
+                  </p>
+                  <p className="text-[11px] text-[#352A30]/60 mb-2">
+                    {language === 'si' ? 'පැහැදිලි මුහුණ පෙනෙන ඡායාරූපයක් තෝරන්න (JPG/PNG)' : 'Upload a clear portrait photo (JPG or PNG)'}
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoSelect}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#F8E4EB] text-[#AD3B65] border border-[#F8E4EB] text-xs font-bold transition shadow-xs cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-[#C6A56B]" />
+                    <span>{photoPreview ? (language === 'si' ? 'වෙනත් පින්තූරයක් තෝරන්න' : 'Change Photo') : (language === 'si' ? 'ඡායාරූපය තෝරන්න' : 'Select Photo')}</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-[#352A30] mb-1.5">

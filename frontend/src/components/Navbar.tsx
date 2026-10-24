@@ -88,16 +88,26 @@ export const Navbar: React.FC = () => {
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap shrink-0">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span className="text-[11px] font-bold text-emerald-800 whitespace-nowrap">
-                    {profile?.profile_code || user?.name || (language === 'si' ? 'සක්‍රිය සාමාජික' : 'Active Member')}
+                <Link
+                  href="/profile"
+                  className="flex items-center space-x-2 bg-[#FFF8FA] hover:bg-[#F8E4EB] border border-[#F8E4EB] pl-1.5 pr-3 py-1 rounded-full shadow-xs transition group"
+                  title={language === 'si' ? 'මගේ Profile තොරතුරු සහ ඡායාරූප' : 'My Profile & Photos'}
+                >
+                  <div className="w-6 h-6 rounded-full overflow-hidden bg-[#AD3B65] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {profile?.primary_photo_url ? (
+                      <img src={profile.primary_photo_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      user?.name?.charAt(0) || 'U'
+                    )}
+                  </div>
+                  <span className="text-xs font-bold text-[#352A30] group-hover:text-[#AD3B65] whitespace-nowrap">
+                    {profile?.profile_code || user?.name}
                   </span>
-                </div>
+                </Link>
                 <button
                   onClick={logout}
                   title={language === 'si' ? 'ඉවත් වන්න' : 'Sign Out'}
-                  className="p-1.5 rounded-full text-[#352A30]/70 hover:text-[#AD3B65] hover:bg-[#F8E4EB] transition"
+                  className="p-1.5 rounded-full text-[#352A30]/70 hover:text-[#AD3B65] hover:bg-[#F8E4EB] transition cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -160,10 +170,21 @@ export const Navbar: React.FC = () => {
 
             <div className="pt-2 border-t border-[#F8E4EB] flex flex-col space-y-2">
               {isAuthenticated ? (
-                <div className="flex items-center justify-between p-2 rounded-2xl bg-[#FFF8FA] border border-[#F8E4EB]">
-                  <span className="text-xs font-bold text-emerald-800">
-                    👤 {profile?.profile_code || user?.name}
-                  </span>
+                <div className="flex items-center justify-between p-2.5 rounded-2xl bg-[#FFF8FA] border border-[#F8E4EB]">
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center space-x-2 text-xs font-bold text-[#352A30] hover:text-[#AD3B65]"
+                  >
+                    <div className="w-6 h-6 rounded-full overflow-hidden bg-[#AD3B65] text-white flex items-center justify-center text-[10px] shrink-0">
+                      {profile?.primary_photo_url ? (
+                        <img src={profile.primary_photo_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        user?.name?.charAt(0) || 'U'
+                      )}
+                    </div>
+                    <span>{profile?.profile_code || user?.name} ({language === 'si' ? 'මගේ ගිණුම' : 'My Profile'})</span>
+                  </Link>
                   <button
                     onClick={() => {
                       logout();
