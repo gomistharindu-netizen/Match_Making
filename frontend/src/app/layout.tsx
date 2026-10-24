@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { LanguageProvider } from '../context/LanguageContext';
+import { AuthProvider } from '../context/AuthContext';
 import { DemoProvider } from '../context/DemoContext';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
@@ -27,13 +28,15 @@ export default function RootLayout({
       </head>
       <body className="antialiased min-h-screen flex flex-col bg-[#FFF8FA] text-[#352A30] selection:bg-[#AD3B65] selection:text-white font-serif">
         <LanguageProvider>
-          <DemoProvider>
-            <Navbar />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </DemoProvider>
+          <AuthProvider>
+            <DemoProvider>
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </DemoProvider>
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>

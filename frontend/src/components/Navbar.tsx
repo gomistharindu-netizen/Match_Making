@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useDemo } from '../context/DemoContext';
-import { Heart, ShieldCheck, Menu, X, User, Globe } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Heart, ShieldCheck, Menu, X, User, Globe, LogIn, LogOut, MessageCircle } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { language, toggleLanguage, t } = useLanguage();
   const { role, freeModeActive } = useDemo();
+  const { user, profile, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -29,42 +31,41 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 pt-3 sm:pt-4 pointer-events-none transition-all duration-300">
-      <div className="max-w-7xl mx-auto pointer-events-auto">
-        {/* Floating Rounded Translucent Bar */}
-        <div className="rounded-full bg-white/90 backdrop-blur-xl shadow-xl shadow-[#352A30]/5 border border-[#F8E4EB] px-4 sm:px-6 py-2 flex items-center justify-between transition gap-2">
-          {/* Brand Logo */}
-          <Link href="/" className="flex items-center space-x-2.5 group shrink-0 whitespace-nowrap">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] flex items-center justify-center shadow-md shadow-[#AD3B65]/25 group-hover:scale-105 transition shrink-0">
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[#C6A56B] fill-[#C6A56B]" />
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#F8E4EB] transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo & Sinhala/English Brand Title */}
+          <Link href="/" className="flex items-center space-x-2.5 group shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] flex items-center justify-center shadow-md shadow-[#AD3B65]/20 group-hover:scale-105 transition-transform duration-300">
+              <Heart className="w-5 h-5 text-white fill-current animate-pulse" />
             </div>
             <div>
-              <span className="block text-base sm:text-lg font-extrabold tracking-tight text-[#352A30] leading-none whitespace-nowrap">
+              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#AD3B65] via-[#8E2E52] to-[#352A30] bg-clip-text text-transparent font-serif tracking-tight">
                 {t.brandName}
               </span>
-              <span className="hidden sm:block text-[10px] font-semibold text-[#C6A56B] tracking-wider mt-0.5 whitespace-nowrap">
-                {language === 'si' ? 'විශ්වාසනීය මංගල සේවාව' : 'Matrimonial & Astrological'}
-              </span>
+              <p className="text-[10px] text-[#C6A56B] uppercase tracking-wider font-semibold">
+                {language === 'si' ? 'මංගල සේවාව' : 'Matrimonial'}
+              </p>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center space-x-1 shrink-0">
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 relative flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all relative ${
                     active
-                      ? 'text-[#AD3B65] bg-[#F8E4EB] shadow-sm'
-                      : 'text-[#352A30] hover:text-[#AD3B65] hover:bg-[#F8E4EB]/50'
+                      ? 'text-[#AD3B65] bg-[#F8E4EB]/70'
+                      : 'text-[#352A30] hover:text-[#AD3B65] hover:bg-[#FFF8FA]'
                   }`}
                 >
-                  <span className="whitespace-nowrap">{link.label}</span>
+                  {link.label}
                   {link.badge && (
-                    <span className="text-[9px] bg-[#C6A56B]/20 text-[#815e37] font-extrabold px-1.5 py-0.2 rounded-full border border-[#C6A56B]/40 whitespace-nowrap">
+                    <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-full bg-[#C6A56B]/20 text-[#8E2E52] font-extrabold uppercase">
                       {link.badge}
                     </span>
                   )}
@@ -85,21 +86,40 @@ export const Navbar: React.FC = () => {
               <span className="whitespace-nowrap">{language === 'si' ? 'English' : 'සිංහල'}</span>
             </button>
 
-            {role === 'member' ? (
-              <div className="flex items-center space-x-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap shrink-0">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span className="text-[11px] font-bold text-emerald-800 whitespace-nowrap">
-                  {language === 'si' ? 'සක්‍රිය සාමාජික' : 'Active Member'}
-                </span>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="text-[11px] font-bold text-emerald-800 whitespace-nowrap">
+                    {profile?.profile_code || user?.name || (language === 'si' ? 'සක්‍රිය සාමාජික' : 'Active Member')}
+                  </span>
+                </div>
+                <button
+                  onClick={logout}
+                  title={language === 'si' ? 'ඉවත් වන්න' : 'Sign Out'}
+                  className="p-1.5 rounded-full text-[#352A30]/70 hover:text-[#AD3B65] hover:bg-[#F8E4EB] transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
             ) : (
-              <Link
-                href="/membership"
-                className="bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] hover:from-[#972F55] hover:to-[#AD3B65] text-white text-xs font-bold px-4 py-2 rounded-full shadow-md shadow-[#AD3B65]/25 hover:shadow-lg transition flex items-center space-x-1.5 whitespace-nowrap shrink-0"
-              >
-                <User className="w-3.5 h-3.5 text-[#C6A56B] shrink-0" />
-                <span className="whitespace-nowrap">{freeModeActive ? t.nav.register : `${t.nav.register}`}</span>
-              </Link>
+              <div className="flex items-center space-x-2">
+                <Link
+                  href="/login"
+                  className="px-3 py-1.5 text-xs font-bold rounded-full text-[#AD3B65] hover:bg-[#F8E4EB] transition flex items-center space-x-1"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-[#C6A56B]" />
+                  <span>{t.nav.login}</span>
+                </Link>
+
+                <Link
+                  href="/register"
+                  className="bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] hover:from-[#972F55] hover:to-[#AD3B65] text-white text-xs font-bold px-4 py-2 rounded-full shadow-md shadow-[#AD3B65]/25 hover:shadow-lg transition flex items-center space-x-1.5 whitespace-nowrap shrink-0"
+                >
+                  <User className="w-3.5 h-3.5 text-[#C6A56B] shrink-0" />
+                  <span className="whitespace-nowrap">{t.nav.register}</span>
+                </Link>
+              </div>
             )}
           </div>
 
@@ -137,14 +157,41 @@ export const Navbar: React.FC = () => {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-2 border-t border-[#F8E4EB]">
-              <Link
-                href="/membership"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center bg-[#AD3B65] text-white font-bold py-2.5 rounded-full text-xs shadow-md shadow-[#AD3B65]/25"
-              >
-                {t.nav.register}
-              </Link>
+
+            <div className="pt-2 border-t border-[#F8E4EB] flex flex-col space-y-2">
+              {isAuthenticated ? (
+                <div className="flex items-center justify-between p-2 rounded-2xl bg-[#FFF8FA] border border-[#F8E4EB]">
+                  <span className="text-xs font-bold text-emerald-800">
+                    👤 {profile?.profile_code || user?.name}
+                  </span>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-xs font-bold text-[#AD3B65] hover:underline"
+                  >
+                    {language === 'si' ? 'ඉවත් වන්න' : 'Logout'}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full text-center py-2.5 rounded-full text-xs font-bold text-[#AD3B65] border border-[#F8E4EB] bg-[#FFF8FA]"
+                  >
+                    {t.nav.login}
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full text-center bg-[#AD3B65] text-white font-bold py-2.5 rounded-full text-xs shadow-md shadow-[#AD3B65]/25"
+                  >
+                    {t.nav.register}
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
