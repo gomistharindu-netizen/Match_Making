@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { Heart, User, Mail, Phone, Lock, Calendar, MapPin, Briefcase, GraduationCap, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, Camera, Upload } from 'lucide-react';
+import { Heart, User, Mail, Phone, Lock, ArrowRight, AlertCircle, ShieldCheck, Upload } from 'lucide-react';
 
 export default function RegisterPage() {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { register } = useAuth();
   const router = useRouter();
 

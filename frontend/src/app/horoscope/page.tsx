@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Link from 'next/link';
 import { useLanguage } from '../../context/LanguageContext';
 import { useDemo } from '../../context/DemoContext';
 import {
@@ -16,22 +15,28 @@ import {
   Sparkles,
   AlertCircle,
   Clock,
-  FileText,
   Copy,
   Check,
   ArrowRight,
-  Phone,
-  Mail,
-  Calendar,
-  MapPin,
-  Lock
+  Mail
 } from 'lucide-react';
 import { PageHeaderBanner } from '../../components/PageHeaderBanner';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
+interface TrackedHoroscopeOrder {
+  order_code: string;
+  customer_name: string;
+  status: string;
+  first_party_name: string;
+  second_party_name: string;
+  has_report?: boolean;
+  report_file_url?: string;
+  [key: string]: unknown;
+}
+
 export default function HoroscopePage() {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { horoscopeFee } = useDemo();
 
   // Main Page Tab: 'order' or 'track'
@@ -90,7 +95,7 @@ export default function HoroscopePage() {
   // Tracking State
   const [trackCodeInput, setTrackCodeInput] = useState('');
   const [trackingLoading, setTrackingLoading] = useState(false);
-  const [trackedOrder, setTrackedOrder] = useState<any | null>(null);
+  const [trackedOrder, setTrackedOrder] = useState<TrackedHoroscopeOrder | null>(null);
   const [trackError, setTrackError] = useState<string | null>(null);
 
   const handleNextToPayment = (e: React.FormEvent) => {
@@ -177,8 +182,9 @@ export default function HoroscopePage() {
       }
 
       setActiveStep(3);
-    } catch (err: any) {
-      setSubmitError(err.message || 'Error creating order. Please check your connection.');
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Error creating order. Please check your connection.';
+      setSubmitError(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -201,8 +207,8 @@ export default function HoroscopePage() {
       }
 
       setTrackedOrder(data);
-    } catch (err: any) {
-      setTrackError(err.message);
+    } catch (err: unknown) {
+      setTrackError(err instanceof Error ? err.message : 'Error loading order');
     } finally {
       setTrackingLoading(false);
     }

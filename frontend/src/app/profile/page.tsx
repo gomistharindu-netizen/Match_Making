@@ -4,11 +4,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
-import { useAuth, ProfilePhotoItem } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   Camera,
   Upload,
-  Trash2,
   CheckCircle2,
   Shield,
   Eye,
@@ -21,14 +20,12 @@ import {
   MapPin,
   Briefcase,
   GraduationCap,
-  Calendar,
-  Heart,
   ChevronRight
 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { language, t } = useLanguage();
-  const { user, profile, isAuthenticated, isLoading, uploadPhoto, updateProfileDetails, refreshProfile } = useAuth();
+  const { language } = useLanguage();
+  const { profile, isAuthenticated, isLoading, uploadPhoto, updateProfileDetails } = useAuth();
   const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement>(null);

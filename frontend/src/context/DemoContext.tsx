@@ -29,11 +29,20 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/a
 
 const DemoContext = createContext<DemoContextType | undefined>(undefined);
 
+function mapManagedBy(type?: string): 'Mother' | 'Father' | 'Self' | 'Guardian' {
+  if (!type) return 'Self';
+  const lower = type.toLowerCase();
+  if (lower.includes('mother')) return 'Mother';
+  if (lower.includes('father')) return 'Father';
+  if (lower.includes('guardian') || lower.includes('parent') || lower.includes('relative') || lower.includes('sibling')) return 'Guardian';
+  return 'Self';
+}
+
 // Transform Laravel Database Profile to MatrimonialProfile format
-function mapDbProfileToUi(p: any): MatrimonialProfile {
+function mapDbProfileToUi(p: Record<string, any>): MatrimonialProfile {
   const isOverseas = p.district === 'Overseas' || (p.country && p.country !== 'Sri Lanka');
   const heightStr = p.height_feet ? `${p.height_feet}' ${p.height_inches || 0}"` : "5' 8\"";
-  const managedByCapitalized = (p.managed_by_type ? p.managed_by_type.charAt(0).toUpperCase() + p.managed_by_type.slice(1) : 'Self') as any;
+  const managedBy = mapManagedBy(p.managed_by_type);
 
   return {
     id: `db-${p.id}`,
@@ -52,7 +61,7 @@ function mapDbProfileToUi(p: any): MatrimonialProfile {
     workplace: p.employed_in ? `${p.employed_in} Sector` : 'Private Sector',
     monthlyIncome: p.monthly_income_lkr || undefined,
     maritalStatus: 'Never Married',
-    managedBy: managedByCapitalized,
+    managedBy: managedBy,
     photoUrl: p.primary_photo_url || (p.gender === 'groom'
       ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80'
       : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80'),
@@ -78,8 +87,8 @@ function mapDbProfileToUi(p: any): MatrimonialProfile {
       phone: 'Protected (Owner approval required)',
       whatsapp: 'Protected',
       email: 'Protected',
-      contactPerson: managedByCapitalized,
-      relationship: managedByCapitalized,
+      contactPerson: managedBy,
+      relationship: managedBy,
       address: p.district,
     },
     interestStatus: 'none',
@@ -120,7 +129,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsLiveDb(true);
         }
       }
-    } catch (e) {
+    } catch {
       // Backend temporarily offline, fallback to mockProfiles
       console.log('Backend API offline or unreachable, using default mock data');
     }
@@ -163,7 +172,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           body: JSON.stringify({ target_profile_code: target.code }),
         });
       }
-    } catch (e) {}
+    } catch {}
   };
 
   const unlockContact = (profileId: string) => {

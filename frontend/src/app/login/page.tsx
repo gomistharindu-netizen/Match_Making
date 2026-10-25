@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { Heart, Lock, Mail, Phone, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, AlertCircle } from 'lucide-react';
+import { Heart, Lock, Mail, Eye, EyeOff, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { login } = useAuth();
   const router = useRouter();
 

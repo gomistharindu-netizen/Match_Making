@@ -4,13 +4,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '../context/LanguageContext';
-import { useDemo } from '../context/DemoContext';
 import { useAuth } from '../context/AuthContext';
-import { Heart, ShieldCheck, Menu, X, User, Globe, LogIn, LogOut, MessageCircle } from 'lucide-react';
+import { Heart, Menu, X, User, Globe, LogIn, LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { language, toggleLanguage, t } = useLanguage();
-  const { role, freeModeActive } = useDemo();
   const { user, profile, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

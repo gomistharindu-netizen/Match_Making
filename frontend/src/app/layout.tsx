@@ -18,14 +18,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="si">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Serif+Sinhala:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className="antialiased min-h-screen flex flex-col bg-[#FFF8FA] text-[#352A30] selection:bg-[#AD3B65] selection:text-white font-serif">
         <LanguageProvider>
           <AuthProvider>

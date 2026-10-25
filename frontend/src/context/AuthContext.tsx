@@ -54,9 +54,9 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (login: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  register: (data: Record<string, any> | FormData) => Promise<{ success: boolean; message?: string }>;
+  register: (data: Record<string, unknown> | FormData) => Promise<{ success: boolean; message?: string }>;
   uploadPhoto: (file: File, isPrimary?: boolean, visibility?: string) => Promise<{ success: boolean; photo_url?: string; message?: string }>;
-  updateProfileDetails: (details: Record<string, any>) => Promise<{ success: boolean; message?: string }>;
+  updateProfileDetails: (details: Record<string, unknown>) => Promise<{ success: boolean; message?: string }>;
   refreshProfile: () => Promise<void>;
   logout: () => void;
 }
@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('jj_auth_profile', JSON.stringify(data.profile));
         }
       }
-    } catch (e) {
+    } catch {
       // Error fetching me
     }
   };
@@ -141,7 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setIsLoading(false);
       }
-    } catch (e) {
+    } catch {
       setIsLoading(false);
     }
   }, []);
@@ -180,7 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return { success: true };
-    } catch (err: any) {
+    } catch {
       return {
         success: false,
         message: 'Could not connect to server. Please check your connection.',
@@ -188,7 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (formData: Record<string, any> | FormData): Promise<{ success: boolean; message?: string }> => {
+  const register = async (formData: Record<string, unknown> | FormData): Promise<{ success: boolean; message?: string }> => {
     try {
       const isFormData = typeof FormData !== 'undefined' && formData instanceof FormData;
 
@@ -226,7 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return { success: true };
-    } catch (err: any) {
+    } catch {
       return {
         success: false,
         message: 'Could not connect to server. Please check your connection.',
@@ -268,12 +268,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return { success: true, photo_url: data.photo_url };
-    } catch (e: any) {
+    } catch {
       return { success: false, message: 'Photo upload error. Check your file format and size.' };
     }
   };
 
-  const updateProfileDetails = async (details: Record<string, any>): Promise<{ success: boolean; message?: string }> => {
+  const updateProfileDetails = async (details: Record<string, unknown>): Promise<{ success: boolean; message?: string }> => {
     const currentToken = token || (typeof window !== 'undefined' ? localStorage.getItem('jj_auth_token') : null);
     if (!currentToken) return { success: false, message: 'Please login first' };
 
@@ -295,7 +295,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       await refreshProfile();
       return { success: true };
-    } catch (e) {
+    } catch {
       return { success: false, message: 'Network error updating profile' };
     }
   };

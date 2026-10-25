@@ -23,7 +23,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/a
 export default function MessagesPage() {
   const { language, t } = useLanguage();
   const { role } = useDemo();
-  const { isAuthenticated, token, user } = useAuth();
+  const { isAuthenticated, token } = useAuth();
 
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [activeConvId, setActiveConvId] = useState<string>(mockConversations[0]?.id || '');
@@ -67,7 +67,7 @@ export default function MessagesPage() {
             setIsLiveApi(true);
           }
         }
-      } catch (e) {
+      } catch {
         console.log('Using fallback mock conversations');
       }
     };
@@ -103,7 +103,7 @@ export default function MessagesPage() {
             prev.map((c) => (c.id === activeConvId ? { ...c, messages: mappedMsgs } : c))
           );
         }
-      } catch (e) {}
+      } catch {}
     };
 
     fetchMessages();
@@ -154,7 +154,7 @@ export default function MessagesPage() {
           },
           body: JSON.stringify({ message: textToSend }),
         });
-      } catch (e) {}
+      } catch {}
     }
   };
 
@@ -196,7 +196,7 @@ export default function MessagesPage() {
             Accept: 'application/json',
           },
         });
-      } catch (e) {}
+      } catch {}
     }
   };
 
