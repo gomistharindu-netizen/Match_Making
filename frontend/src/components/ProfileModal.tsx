@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { MatrimonialProfile } from '../data/mockProfiles';
 import { useLanguage } from '../context/LanguageContext';
 import { useDemo } from '../context/DemoContext';
+import { useAuth } from '../context/AuthContext';
 import {
   X,
   ShieldCheck,
@@ -26,11 +28,21 @@ interface ProfileModalProps {
 export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) => {
   const { language, t } = useLanguage();
   const { sendInterest, unlockContact } = useDemo();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   if (!profile) return null;
 
   const isPending = profile.interestStatus === 'pending';
   const isAccepted = profile.interestStatus === 'accepted';
+
+  const handleInterest = () => {
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/browse&reason=interest');
+      return;
+    }
+    sendInterest(profile.id);
+  };
   const isUnlocked = profile.contactReleased;
 
   return (
@@ -255,7 +267,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
           </button>
 
           <button
-            onClick={() => sendInterest(profile.id)}
+            onClick={handleInterest}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
               isAccepted
                 ? 'bg-emerald-600 text-white shadow'

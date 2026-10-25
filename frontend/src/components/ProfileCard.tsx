@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { MatrimonialProfile } from '../data/mockProfiles';
 import { useLanguage } from '../context/LanguageContext';
 import { useDemo } from '../context/DemoContext';
+import { useAuth } from '../context/AuthContext';
 import { Heart, Sparkles, MapPin, Briefcase, GraduationCap, Globe, Check, Eye } from 'lucide-react';
 
 interface ProfileCardProps {
@@ -14,9 +16,19 @@ interface ProfileCardProps {
 export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }) => {
   const { language, t } = useLanguage();
   const { sendInterest } = useDemo();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const isPending = profile.interestStatus === 'pending';
   const isAccepted = profile.interestStatus === 'accepted';
+
+  const handleInterest = () => {
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/browse&reason=interest');
+      return;
+    }
+    sendInterest(profile.id);
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-[#F8E4EB] overflow-hidden shadow-sm hover:shadow-xl hover:border-[#AD3B65]/30 transition duration-300 flex flex-col group">
@@ -127,7 +139,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
           {/* Express Interest Button */}
           <button
             type="button"
-            onClick={() => sendInterest(profile.id)}
+            onClick={handleInterest}
             className={`w-full h-10 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs active:scale-[0.98] ${
               isAccepted
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
