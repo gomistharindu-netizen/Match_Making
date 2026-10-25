@@ -13,6 +13,11 @@ export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Hide public navbar on admin portal
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const navLinks = [
     { href: '/', label: t.nav.home },
     { href: '/browse', label: t.nav.proposals },

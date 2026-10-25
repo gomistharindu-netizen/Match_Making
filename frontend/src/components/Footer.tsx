@@ -2,11 +2,18 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { Heart, ShieldCheck, Lock, Phone, Mail, MapPin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const pathname = usePathname();
   const { language, t } = useLanguage();
+
+  // Hide public footer on admin portal
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <footer className="bg-stone-900 text-stone-300 pt-16 pb-12 border-t border-stone-800">
