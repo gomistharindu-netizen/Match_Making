@@ -21,6 +21,7 @@ class Message extends Model
     protected function casts(): array
     {
         return [
+            'message_body' => 'encrypted',
             'is_read' => 'boolean',
             'read_at' => 'datetime',
         ];
