@@ -30,37 +30,51 @@
         letter-spacing: -0.01em;
     }
 
-    /* Sidebar Styling */
+    /* Sidebar full height & layout */
     .fi-sidebar {
+        width: 20rem !important;
+        min-width: 20rem !important;
         background-color: #FFFFFF !important;
         border-right: 1.5px solid rgba(198, 165, 107, 0.35) !important;
         box-shadow: 4px 0 24px -10px rgba(173, 59, 101, 0.08) !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* Sidebar header & anchored Heart logo */
+    .fi-sidebar-header-ctn {
+        padding: 0.75rem 0.5rem !important;
+        border-bottom: 1.5px solid rgba(198, 165, 107, 0.25) !important;
+        margin-bottom: 0.5rem !important;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FFF8FA 100%) !important;
+        border-radius: 0.75rem !important;
     }
 
     .fi-sidebar-header {
-        border-bottom: 1.5px solid rgba(198, 165, 107, 0.25) !important;
-        padding: 1.25rem 1rem !important;
         display: flex !important;
         align-items: center !important;
-        background: linear-gradient(180deg, #FFFFFF 0%, #FFF8FA 100%) !important;
+        height: auto !important;
+        padding: 0 !important;
     }
 
     .fi-sidebar-header-logo-ctn {
-        width: 100% !important;
         display: flex !important;
         align-items: center !important;
+        width: 100% !important;
     }
 
-    /* Hide any duplicate logo in topbar on desktop */
-    .fi-topbar .fi-topbar-start .fi-logo {
+    .fi-sidebar-header-logo-ctn a {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .fi-sidebar-header-logo-ctn .fi-logo {
+        height: auto !important;
+    }
+
+    /* Completely hide topbar if any trace exists */
+    .fi-topbar-ctn, .fi-topbar, .fi-topbar-start {
         display: none !important;
-    }
-
-    /* Topbar styling */
-    .fi-topbar {
-        background-color: rgba(255, 248, 250, 0.95) !important;
-        backdrop-filter: blur(8px) !important;
-        border-bottom: 1.5px solid rgba(198, 165, 107, 0.25) !important;
     }
 
     /* Active Sidebar Navigation Item */
@@ -81,9 +95,15 @@
     .fi-sidebar-group-label {
         color: #8E2E52 !important;
         font-weight: 700 !important;
-        font-size: 0.72rem !important;
+        font-size: 0.75rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.05em !important;
+    }
+
+    /* Main Content Container */
+    .fi-main-ctn {
+        background-color: #FFF8FA !important;
+        padding: 1.5rem !important;
     }
 
     /* Cards & Stats Widgets */

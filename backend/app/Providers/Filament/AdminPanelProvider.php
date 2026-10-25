@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('ජයතු ජය (Jayathu Jaya)')
             ->brandLogo(fn () => view('filament.brand-logo'))
             ->brandLogoHeight('3rem')
+            ->topbar(false)
             ->darkMode(false)
             ->sidebarWidth('19.5rem')
             ->colors([
