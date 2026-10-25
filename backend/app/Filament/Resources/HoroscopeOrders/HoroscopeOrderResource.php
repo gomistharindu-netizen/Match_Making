@@ -13,12 +13,30 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class HoroscopeOrderResource extends Resource
 {
     protected static ?string $model = HoroscopeOrder::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedSparkles;
+
+    protected static UnitEnum|string|null $navigationGroup = 'ජ්‍යොතිෂ අංශය (Astrology)';
+
+    protected static ?string $navigationLabel = 'කේන්ද්‍ර පරීක්ෂා (Orders)';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $pending = static::getModel()::where('status', 'pending')->count();
+        return $pending > 0 ? (string) $pending : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
 
     public static function form(Schema $schema): Schema
     {

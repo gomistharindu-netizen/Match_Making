@@ -13,12 +13,30 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class BankSlipResource extends Resource
 {
     protected static ?string $model = BankSlip::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedBanknotes;
+
+    protected static UnitEnum|string|null $navigationGroup = 'මුදල් හා ගෙවීම් (Finance & Payments)';
+
+    protected static ?string $navigationLabel = 'බැංකු රිසිට්පත් (Bank Slips)';
+
+    protected static ?int $navigationSort = 3;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $pending = static::getModel()::whereNull('verified_at')->count();
+        return $pending > 0 ? (string) $pending : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
 
     public static function form(Schema $schema): Schema
     {

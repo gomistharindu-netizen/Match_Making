@@ -13,12 +13,30 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class MemberProfileResource extends Resource
 {
     protected static ?string $model = MemberProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedUsers;
+
+    protected static UnitEnum|string|null $navigationGroup = 'මංගල සේවා (Matrimonial)';
+
+    protected static ?string $navigationLabel = 'සාමාජික යෝජනා (Profiles)';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $pending = static::getModel()::where('publication_status', 'pending_review')->count();
+        return $pending > 0 ? (string) $pending : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -13,12 +13,19 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PaymentOrderResource extends Resource
 {
     protected static ?string $model = PaymentOrder::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedCreditCard;
+
+    protected static UnitEnum|string|null $navigationGroup = 'මුදල් හා ගෙවීම් (Finance & Payments)';
+
+    protected static ?string $navigationLabel = 'ගෙවීම් ඇණවුම් (Orders)';
+
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {

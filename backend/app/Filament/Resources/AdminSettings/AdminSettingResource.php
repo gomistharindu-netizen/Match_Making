@@ -13,12 +13,19 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AdminSettingResource extends Resource
 {
     protected static ?string $model = AdminSetting::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
+
+    protected static UnitEnum|string|null $navigationGroup = 'පද්ධති පාලනය (System & Settings)';
+
+    protected static ?string $navigationLabel = 'පද්ධති සැකසුම් (Settings)';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {

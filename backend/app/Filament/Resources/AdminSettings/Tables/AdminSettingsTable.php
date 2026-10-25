@@ -15,17 +15,31 @@ class AdminSettingsTable
         return $table
             ->columns([
                 TextColumn::make('key')
+                    ->label('Setting Key')
+                    ->weight('bold')
+                    ->color('primary')
                     ->searchable(),
+
+                TextColumn::make('value')
+                    ->label('Current Value')
+                    ->limit(60)
+                    ->wrap()
+                    ->badge(fn ($record) => in_array($record->value, ['true', 'false']))
+                    ->color(fn ($record) => match ($record->value) {
+                        'true' => 'success',
+                        'false' => 'danger',
+                        default => null,
+                    }),
+
                 TextColumn::make('description')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Description')
+                    ->searchable()
+                    ->wrap(),
+
                 TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Last Modified')
+                    ->dateTime('M d, Y')
+                    ->sortable(),
             ])
             ->filters([
                 //
