@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '../../context/LanguageContext';
 import { useDemo } from '../../context/DemoContext';
+import { useAuth } from '../../context/AuthContext';
 import { mockConversations, Conversation, ChatMessage } from '../../data/mockMessages';
 import {
   Send,
@@ -17,36 +18,122 @@ import {
 } from 'lucide-react';
 import { PageHeaderBanner } from '../../components/PageHeaderBanner';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+
 export default function MessagesPage() {
   const { language, t } = useLanguage();
   const { role } = useDemo();
+  const { isAuthenticated, token, user } = useAuth();
 
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [activeConvId, setActiveConvId] = useState<string>(mockConversations[0]?.id || '');
   const [inputText, setInputText] = useState<string>('');
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
+  const [isLiveApi, setIsLiveApi] = useState<boolean>(false);
+
+  // Load live conversations from Laravel API if authenticated
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+
+    const fetchConversations = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/member/conversations`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const mapped: Conversation[] = data.map((c: any) => ({
+              id: String(c.id),
+              profileId: String(c.partner.id),
+              profileCode: c.partner.profile_code,
+              candidateName: c.partner.display_name,
+              photoUrl: c.partner.primary_photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80',
+              lastMessage: c.last_message || 'New conversation channel opened',
+              lastTimestamp: c.last_message_at
+                ? new Date(c.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : 'Recently',
+              unreadCount: c.unread_count || 0,
+              contactReleased: c.contact_released_to_me,
+              messages: [],
+            }));
+
+            setConversations(mapped);
+            setActiveConvId(mapped[0]?.id || '');
+            setIsLiveApi(true);
+          }
+        }
+      } catch (e) {
+        console.log('Using fallback mock conversations');
+      }
+    };
+
+    fetchConversations();
+  }, [isAuthenticated, token]);
+
+  // Load messages for active conversation from Laravel API
+  useEffect(() => {
+    if (!isLiveApi || !token || !activeConvId) return;
+
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/member/conversations/${activeConvId}/messages`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const mappedMsgs: ChatMessage[] = data.map((m: any) => ({
+            id: String(m.id),
+            senderId: m.is_me ? 'me' : String(m.sender_id),
+            senderName: m.is_me ? 'Me' : 'Partner',
+            text: m.message,
+            timestamp: m.time,
+            isMe: m.is_me,
+          }));
+
+          setConversations((prev) =>
+            prev.map((c) => (c.id === activeConvId ? { ...c, messages: mappedMsgs } : c))
+          );
+        }
+      } catch (e) {}
+    };
+
+    fetchMessages();
+  }, [activeConvId, isLiveApi, token]);
 
   const currentConv = conversations.find((c) => c.id === activeConvId);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() || !currentConv) return;
+
+    const textToSend = inputText.trim();
+    setInputText('');
 
     const newMsg: ChatMessage = {
       id: `m-${Date.now()}`,
       senderId: 'me',
       senderName: 'Me',
-      text: inputText,
+      text: textToSend,
       timestamp: 'Just now',
       isMe: true,
     };
 
+    // Optimistic UI update
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id === activeConvId) {
           return {
             ...c,
-            lastMessage: inputText,
+            lastMessage: textToSend,
             lastTimestamp: 'Just now',
             messages: [...c.messages, newMsg],
           };
@@ -54,25 +141,41 @@ export default function MessagesPage() {
         return c;
       })
     );
-    setInputText('');
+
+    // Call Laravel API if authenticated
+    if (isLiveApi && token) {
+      try {
+        await fetch(`${API_BASE_URL}/member/conversations/${activeConvId}/messages`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({ message: textToSend }),
+        });
+      } catch (e) {}
+    }
   };
 
-  const handleToggleContactRelease = () => {
+  const handleToggleContactRelease = async () => {
     if (!currentConv) return;
+
+    const newState = !currentConv.contactReleased;
+    const statusMsg: ChatMessage = {
+      id: `m-sys-${Date.now()}`,
+      senderId: 'system',
+      senderName: 'System',
+      text: newState
+        ? '🎉 Profile Owner has authorized Contact Release. Direct phone & WhatsApp numbers are now accessible!'
+        : '🔒 Contact Release permission was revoked.',
+      timestamp: 'Just now',
+      isMe: false,
+    };
+
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id === activeConvId) {
-          const newState = !c.contactReleased;
-          const statusMsg: ChatMessage = {
-            id: `m-sys-${Date.now()}`,
-            senderId: 'system',
-            senderName: 'System',
-            text: newState
-              ? '🎉 Profile Owner has authorized Contact Release. Direct phone & WhatsApp numbers are now accessible!'
-              : '🔒 Contact Release permission was revoked.',
-            timestamp: 'Just now',
-            isMe: false,
-          };
           return {
             ...c,
             contactReleased: newState,
@@ -82,6 +185,19 @@ export default function MessagesPage() {
         return c;
       })
     );
+
+    // Call backend API to persist contact release if live
+    if (isLiveApi && token && newState) {
+      try {
+        await fetch(`${API_BASE_URL}/member/conversations/${activeConvId}/grant-contact`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
+      } catch (e) {}
+    }
   };
 
   return (
@@ -96,7 +212,7 @@ export default function MessagesPage() {
       />
 
       <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
-        {role === 'visitor' ? (
+        {!isAuthenticated && role === 'visitor' ? (
           <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#F8E4EB] shadow-sm text-center space-y-4 max-w-2xl mx-auto my-8">
             <div className="w-16 h-16 bg-[#F8E4EB] text-[#AD3B65] border border-[#AD3B65]/20 rounded-full flex items-center justify-center mx-auto shadow-sm">
               <Lock className="w-8 h-8 text-[#AD3B65]" />
@@ -106,16 +222,22 @@ export default function MessagesPage() {
             </h2>
             <p className="text-xs sm:text-sm text-[#352A30]/75 max-w-md mx-auto leading-relaxed font-serif">
               {language === 'si'
-                ? 'පෞද්ගලික පණිවිඩ සහ යෝජනා හුවමාරුව කළ හැක්කේ සක්‍රිය සාමාජිකයින්ට පමණි. කරුණාකර Demo Toolbar එකෙන් "Active Member" තෝරා පරීක්ෂා කරන්න.'
-                : 'Private messaging is restricted to active members. Please switch your role to "Active Lifetime Member" on the top Demo Toolbar to simulate messaging.'}
+                ? 'පෞද්ගලික පණිවිඩ සහ යෝජනා හුවමාරුව කළ හැක්කේ සක්‍රිය සාමාජිකයින්ට පමණි. කරුණාකර ඔබගේ ගිණුමට ඇතුල් වන්න.'
+                : 'Private messaging is restricted to active members. Please sign in to your account.'}
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex items-center justify-center space-x-3">
               <Link
-                href="/membership"
+                href="/login"
                 className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:shadow-md transition"
               >
-                <span>{language === 'si' ? 'සාමාජිකත්වය ලබාගන්න' : 'Get Membership'}</span>
+                <span>{language === 'si' ? 'ඇතුල් වන්න (Sign In)' : 'Sign In'}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-[#C6A56B]" />
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex items-center space-x-2 bg-[#FFF8FA] text-[#AD3B65] border border-[#F8E4EB] px-6 py-2.5 rounded-full text-xs font-bold hover:bg-[#F8E4EB] transition"
+              >
+                <span>{language === 'si' ? 'නොමිලේ ලියාපදිංචි වන්න' : 'Register Free'}</span>
               </Link>
             </div>
           </div>
@@ -148,7 +270,7 @@ export default function MessagesPage() {
                           setActiveConvId(conv.id);
                           setMobileView('chat');
                         }}
-                        className={`w-full p-3.5 sm:p-4 text-left transition flex items-start space-x-3 ${
+                        className={`w-full p-3.5 sm:p-4 text-left transition flex items-start space-x-3 cursor-pointer ${
                           active
                             ? 'bg-[#F8E4EB] border-l-4 border-[#AD3B65]'
                             : 'hover:bg-white active:bg-[#F8E4EB]/40'
@@ -202,7 +324,7 @@ export default function MessagesPage() {
                         <button
                           type="button"
                           onClick={() => setMobileView('list')}
-                          className="md:hidden p-1.5 -ml-1 text-[#352A30] hover:bg-[#F8E4EB] active:bg-[#F8E4EB] rounded-full transition flex items-center justify-center shrink-0"
+                          className="md:hidden p-1.5 -ml-1 text-[#352A30] hover:bg-[#F8E4EB] active:bg-[#F8E4EB] rounded-full transition flex items-center justify-center shrink-0 cursor-pointer"
                           title={language === 'si' ? 'සංවාද වෙත' : 'Back'}
                         >
                           <ChevronLeft className="w-5 h-5 text-[#352A30]" />
@@ -226,7 +348,7 @@ export default function MessagesPage() {
                       <div className="flex items-center space-x-2 shrink-0">
                         <button
                           onClick={handleToggleContactRelease}
-                          className={`text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1 sm:space-x-1.5 transition shrink-0 ${
+                          className={`text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1 sm:space-x-1.5 transition shrink-0 cursor-pointer ${
                             currentConv.contactReleased
                               ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                               : 'bg-[#AD3B65] hover:bg-[#972F55] text-white shadow-sm shadow-[#AD3B65]/20'
@@ -269,7 +391,7 @@ export default function MessagesPage() {
                         <div className="flex flex-wrap items-center gap-3 font-mono font-bold text-xs">
                           <span className="flex items-center text-[#AD3B65]">
                             <Phone className="w-3.5 h-3.5 mr-1" />
-                            +94 77 345 6789
+                            +94 72 222 2222
                           </span>
                           <span className="flex items-center text-emerald-700">
                             <MessageCircle className="w-3.5 h-3.5 mr-1" />
@@ -337,7 +459,7 @@ export default function MessagesPage() {
                       />
                       <button
                         type="submit"
-                        className="bg-[#AD3B65] hover:bg-[#972F55] text-white font-bold p-2.5 sm:p-2.5 rounded-2xl transition shadow-md shadow-[#AD3B65]/20 shrink-0"
+                        className="bg-[#AD3B65] hover:bg-[#972F55] text-white font-bold p-2.5 sm:p-2.5 rounded-2xl transition shadow-md shadow-[#AD3B65]/20 shrink-0 cursor-pointer"
                       >
                         <Send className="w-4 h-4" />
                       </button>
