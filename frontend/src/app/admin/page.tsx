@@ -24,7 +24,8 @@ import {
   TrendingUp,
   Sliders,
   Check,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
@@ -147,8 +148,9 @@ interface UserItem {
 export default function AdminPortalPage() {
   const { user, token, isAuthenticated, login, logout, isLoading } = useAuth();
 
-  // Active Admin Tab
+  // Active Admin Tab & Mobile Sidebar
   const [activeTab, setActiveTab] = useState<'dashboard' | 'profiles' | 'horoscope' | 'slips' | 'settings' | 'users'>('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Login Gate State (for unauthenticated or non-admin users)
   const [loginEmail, setLoginEmail] = useState('');
@@ -614,7 +616,7 @@ export default function AdminPortalPage() {
   // FULL REACT + SHADCN ADMIN PORTAL UI
   // ==========================================
   return (
-    <div className="min-h-screen bg-[#FFF8FA] text-[#352A30]">
+    <div className="min-h-screen bg-[#FFF8FA] text-[#352A30] flex">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-[#352A30] text-white text-xs font-semibold shadow-2xl border border-[#C6A56B] flex items-center gap-2 animate-bounce">
@@ -623,53 +625,181 @@ export default function AdminPortalPage() {
         </div>
       )}
 
-      {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#C6A56B]/30 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-          {/* Brand info */}
-          <div className="flex items-center gap-3.5">
+      {/* Mobile Drawer Backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Left Sidebar */}
+      <aside
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-72 bg-white/95 backdrop-blur-md border-r border-[#F8E4EB] flex flex-col transition-transform duration-300 ease-in-out shrink-0 ${
+          sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="p-5 border-b border-[#F8E4EB] flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#AD3B65] via-[#942A50] to-[#731E3C] border-2 border-[#C6A56B] flex items-center justify-center shadow-md shadow-[#AD3B65]/20 shrink-0">
               <Heart className="w-5 h-5 text-[#C6A56B] fill-[#C6A56B]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif font-bold text-xl text-[#352A30] tracking-tight">
+                <span className="font-serif font-bold text-lg text-[#352A30] tracking-tight">
                   ජයතු ජය
                 </span>
-                <span className="text-[10px] font-bold text-white bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] px-2 py-0.5 rounded-full border border-[#C6A56B]/40 uppercase tracking-widest">
-                  Admin Portal
+                <span className="text-[9px] font-bold text-white bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] px-2 py-0.5 rounded-full border border-[#C6A56B]/40 uppercase tracking-widest">
+                  Admin
                 </span>
               </div>
-              <span className="text-[11px] font-medium text-[#C6A56B] tracking-wider uppercase">
-                Matrimonial & Astrology Management
-              </span>
+              <p className="text-[10px] text-[#C6A56B] font-semibold tracking-wider uppercase">
+                මංගල සේවාව
+              </p>
             </div>
           </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition"
+            aria-label="Close Sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Right Controls */}
-          <div className="flex items-center gap-3">
-            {/* Free Mode Badge */}
-            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-              stats?.metrics.is_free_mode
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                : 'bg-rose-50 text-rose-700 border-rose-300'
-            }`}>
-              <span className={`w-2 h-2 rounded-full ${stats?.metrics.is_free_mode ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+        {/* System Free Mode Strip */}
+        <div className="px-5 py-3 border-b border-[#F8E4EB]/60 bg-[#FFF8FA]/60">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">පද්ධති තත්ත්වය</span>
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                stats?.metrics.is_free_mode
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                  : 'bg-rose-50 text-rose-700 border-rose-300'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  stats?.metrics.is_free_mode ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+                }`}
+              />
               {stats?.metrics.is_free_mode ? 'FREE REGISTRATION' : 'PAID MODE'}
-            </div>
+            </span>
+          </div>
+        </div>
 
-            {/* User Chip */}
-            <div className="flex items-center gap-2 pl-3 border-l border-stone-200">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#AD3B65] to-[#8E2E52] text-white font-bold text-xs flex items-center justify-center shadow-sm">
+        {/* Nav Items */}
+        <nav className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1.5">
+          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+            ප්‍රධාන මෙනුව (Navigation)
+          </div>
+          {[
+            { id: 'dashboard', label: 'දළ විශ්ලේෂණය (Dashboard)', icon: TrendingUp },
+            { id: 'profiles', label: 'සාමාජික යෝජනා (Profiles)', icon: Users, badge: stats?.metrics.pending_profiles },
+            { id: 'horoscope', label: 'කේන්ද්‍ර පරීක්ෂා (Horoscopes)', icon: Sparkles, badge: stats?.metrics.pending_horoscopes },
+            { id: 'slips', label: 'බැංකු රිසිට්පත් (Bank Slips)', icon: Receipt, badge: stats?.metrics.pending_slips },
+            { id: 'settings', label: 'පද්ධති සැකසුම් (Settings)', icon: Sliders },
+            { id: 'users', label: 'පරිශීලකයන් (Users & Staff)', icon: ShieldCheck },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id as typeof activeTab);
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition group ${
+                  isActive
+                    ? 'bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white shadow-md shadow-[#AD3B65]/20 border border-[#C6A56B]/40'
+                    : 'text-stone-600 hover:bg-rose-50/70 hover:text-[#AD3B65]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon
+                    className={`w-4 h-4 transition ${
+                      isActive ? 'text-[#C6A56B]' : 'text-stone-400 group-hover:text-[#AD3B65]'
+                    }`}
+                  />
+                  <span className="truncate">{item.label}</span>
+                </div>
+                {typeof item.badge === 'number' && item.badge > 0 && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      isActive ? 'bg-[#C6A56B] text-stone-900' : 'bg-[#AD3B65] text-white shadow-xs'
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-[#F8E4EB] bg-[#FFF8FA]/60 space-y-3">
+          <Link
+            href="/"
+            target="_blank"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-[#C6A56B]/40 bg-white hover:bg-[#FFF8FA] hover:border-[#AD3B65] text-xs font-bold text-[#AD3B65] transition shadow-xs"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>වෙබ් අඩවියට (Website)</span>
+          </Link>
+
+          <div className="flex items-center justify-between pt-2 border-t border-stone-200/60">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#AD3B65] to-[#8E2E52] text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
                 {user?.name?.charAt(0) || 'A'}
               </div>
-              <div className="hidden md:block text-left leading-tight">
-                <div className="text-xs font-bold text-[#352A30]">{user?.name}</div>
+              <div className="min-w-0 leading-tight">
+                <div className="text-xs font-bold text-[#352A30] truncate">{user?.name}</div>
                 <div className="text-[10px] text-stone-400 capitalize">{user?.role}</div>
               </div>
             </div>
+            <button
+              onClick={() => logout()}
+              className="p-2 rounded-xl text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
 
-            {/* Refresh Data */}
+      {/* Right Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-[#F8E4EB] px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl text-stone-600 hover:text-[#AD3B65] hover:bg-rose-50 transition border border-stone-200"
+              aria-label="Open Sidebar Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-sm sm:text-base font-bold text-[#352A30] font-serif">
+                {activeTab === 'dashboard' && 'දළ විශ්ලේෂණය (Dashboard Overview)'}
+                {activeTab === 'profiles' && 'සාමාජික යෝජනා කළමනාකරණය (Member Profiles)'}
+                {activeTab === 'horoscope' && 'කේන්ද්‍ර පරීක්ෂා කළමනාකරණය (Horoscope Orders)'}
+                {activeTab === 'slips' && 'බැංකු තැන්පතු පත්‍රිකා (Bank Slips Verification)'}
+                {activeTab === 'settings' && 'පද්ධති සැකසුම් (System Settings & Free Mode)'}
+                {activeTab === 'users' && 'පරිශීලක කළමනාකරණය (User Accounts & Staff)'}
+              </h1>
+              <p className="text-[10px] text-stone-400 font-sans hidden sm:block">
+                Jayathu Jaya Matrimonial & Astrology • Management Console
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick Refresh Button */}
             <button
               onClick={() => {
                 fetchStats();
@@ -680,75 +810,17 @@ export default function AdminPortalPage() {
                 if (activeTab === 'users') fetchUsers();
               }}
               disabled={loadingStats}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-200 hover:border-[#C6A56B] bg-white text-xs font-semibold text-stone-600 hover:text-[#AD3B65] transition flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl border border-stone-200 hover:border-[#C6A56B] bg-white text-xs font-semibold text-stone-600 hover:text-[#AD3B65] transition flex items-center gap-1.5 shadow-xs"
               title="Refresh Data"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loadingStats ? 'animate-spin text-[#AD3B65]' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
-
-            {/* Back to Site Button */}
-            <Link
-              href="/"
-              target="_blank"
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-[#C6A56B]/40 hover:border-[#AD3B65] bg-[#FFF8FA] hover:bg-white text-xs font-semibold text-[#AD3B65] transition flex items-center gap-1.5"
-              title="Open Public Website"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Website</span>
-            </Link>
-
-            {/* Sign Out */}
-            <button
-              onClick={() => logout()}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-200 hover:border-rose-300 hover:bg-rose-50 text-xs font-semibold text-stone-600 hover:text-rose-600 transition flex items-center gap-1.5"
-              title="Sign Out"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
           </div>
-        </div>
+        </header>
 
-        {/* Tab Navigation Menu */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-stone-100 flex gap-2 overflow-x-auto py-2 scrollbar-none">
-          {[
-            { id: 'dashboard', label: 'දළ විශ්ලේෂණය (Dashboard)', icon: TrendingUp },
-            { id: 'profiles', label: 'සාමාජික යෝජනා (Profiles)', icon: Users, badge: stats?.metrics.pending_profiles },
-            { id: 'horoscope', label: 'කේන්ද්‍ර පරීක්ෂා (Horoscopes)', icon: Sparkles, badge: stats?.metrics.pending_horoscopes },
-            { id: 'slips', label: 'බැංකු රිසිට්පත් (Bank Slips)', icon: Receipt, badge: stats?.metrics.pending_slips },
-            { id: 'settings', label: 'පද්ධති සැකසුම් (Settings)', icon: Sliders },
-            { id: 'users', label: 'පරිශීලකයන් (Users)', icon: ShieldCheck },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white shadow-md shadow-[#AD3B65]/20 border border-[#C6A56B]/40'
-                    : 'text-stone-600 hover:bg-white hover:text-[#AD3B65] border border-transparent'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#C6A56B]' : 'text-stone-400'}`} />
-                <span>{tab.label}</span>
-                {typeof tab.badge === 'number' && tab.badge > 0 && (
-                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                    isActive ? 'bg-[#C6A56B] text-stone-900' : 'bg-rose-500 text-white'
-                  }`}>
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
         {/* ==================================================== */}
         {/* TAB 1: OVERVIEW DASHBOARD */}
         {/* ==================================================== */}
@@ -1783,7 +1855,8 @@ export default function AdminPortalPage() {
             </div>
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
