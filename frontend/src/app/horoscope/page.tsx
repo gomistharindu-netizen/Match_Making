@@ -66,6 +66,15 @@ export default function HoroscopePage() {
 
   const [notes, setNotes] = useState('');
 
+  // Horoscope chart files
+  const [chart1File, setChart1File] = useState<File | null>(null);
+  const [chart1Name, setChart1Name] = useState<string | null>(null);
+  const [chart2File, setChart2File] = useState<File | null>(null);
+  const [chart2Name, setChart2Name] = useState<string | null>(null);
+
+  const chart1InputRef = useRef<HTMLInputElement>(null);
+  const chart2InputRef = useRef<HTMLInputElement>(null);
+
   // Bank slip upload state
   const [bankSlipFile, setBankSlipFile] = useState<File | null>(null);
   const [bankSlipPreview, setBankSlipPreview] = useState<string | null>(null);
@@ -117,27 +126,27 @@ export default function HoroscopePage() {
       const birthDateTime1 = `${subject1.dob} 06:45:00`;
       const birthDateTime2 = `${subject2.dob} 02:15:00`;
 
-      const orderPayload = {
-        customer_name: customer.name,
-        customer_email: customer.email,
-        customer_phone: customer.phone,
-        first_party_name: subject1.name,
-        first_party_birth_datetime: birthDateTime1,
-        first_party_birth_place: subject1.place,
-        second_party_name: subject2.name,
-        second_party_birth_datetime: birthDateTime2,
-        second_party_birth_place: subject2.place,
-        payment_method: paymentMethod,
-        notes: notes || undefined,
-      };
+      const orderFormData = new FormData();
+      orderFormData.append('customer_name', customer.name);
+      orderFormData.append('customer_email', customer.email);
+      orderFormData.append('customer_phone', customer.phone);
+      orderFormData.append('first_party_name', subject1.name);
+      orderFormData.append('first_party_birth_datetime', birthDateTime1);
+      orderFormData.append('first_party_birth_place', subject1.place);
+      orderFormData.append('second_party_name', subject2.name);
+      orderFormData.append('second_party_birth_datetime', birthDateTime2);
+      orderFormData.append('second_party_birth_place', subject2.place);
+      orderFormData.append('payment_method', paymentMethod);
+      if (notes) orderFormData.append('notes', notes);
+      if (chart1File) orderFormData.append('first_party_chart', chart1File);
+      if (chart2File) orderFormData.append('second_party_chart', chart2File);
 
       const res = await fetch(`${API_BASE_URL}/public/horoscope-orders`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify(orderPayload),
+        body: orderFormData,
       });
 
       const data = await res.json();
@@ -435,6 +444,46 @@ export default function HoroscopePage() {
                           />
                         </div>
                       </div>
+
+                      {/* Bride Chart Upload */}
+                      <div className="pt-2 border-t border-[#F8E4EB]">
+                        <label className="block text-[#352A30] font-bold mb-1 flex items-center justify-between">
+                          <span>{language === 'si' ? 'කේන්ද්‍ර පත්‍රය (Horoscope Chart)' : 'Horoscope Chart'}</span>
+                          <span className="text-[10px] text-[#C6A56B] font-semibold">{language === 'si' ? 'විකල්ප (Optional)' : 'Optional'}</span>
+                        </label>
+                        <p className="text-[11px] text-[#352A30]/60 mb-2">
+                          {language === 'si' ? 'කේන්ද්‍ර කොළයේ ඡායාරූපයක් හෝ PDF එකක් අමුණන්න (JPG/PNG/PDF, උපරිම 10MB)' : 'Attach chart scan or photo (JPG/PNG/PDF, Max 10MB)'}
+                        </p>
+
+                        <input
+                          ref={chart1InputRef}
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) {
+                              setChart1File(f);
+                              setChart1Name(f.name);
+                            }
+                          }}
+                          className="hidden"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => chart1InputRef.current?.click()}
+                          className={`w-full py-2.5 px-3 rounded-xl border border-dashed text-xs font-semibold flex items-center justify-center space-x-2 transition cursor-pointer ${
+                            chart1File
+                              ? 'bg-emerald-50 border-emerald-400 text-emerald-800'
+                              : 'bg-white border-[#F8E4EB] text-[#AD3B65] hover:bg-[#F8E4EB]'
+                          }`}
+                        >
+                          <Upload className="w-4 h-4 text-[#C6A56B]" />
+                          <span className="truncate">
+                            {chart1File ? `✓ ${chart1Name} (Attached)` : (language === 'si' ? 'කේන්ද්‍ර පත්‍රය තෝරන්න (Upload Chart)' : 'Choose Chart File')}
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -499,6 +548,46 @@ export default function HoroscopePage() {
                             className="w-full bg-white border border-[#F8E4EB] rounded-xl px-3.5 py-2 text-xs text-[#352A30] focus:outline-none focus:border-[#AD3B65]"
                           />
                         </div>
+                      </div>
+
+                      {/* Groom Chart Upload */}
+                      <div className="pt-2 border-t border-[#F8E4EB]">
+                        <label className="block text-[#352A30] font-bold mb-1 flex items-center justify-between">
+                          <span>{language === 'si' ? 'කේන්ද්‍ර පත්‍රය (Horoscope Chart)' : 'Horoscope Chart'}</span>
+                          <span className="text-[10px] text-[#C6A56B] font-semibold">{language === 'si' ? 'විකල්ප (Optional)' : 'Optional'}</span>
+                        </label>
+                        <p className="text-[11px] text-[#352A30]/60 mb-2">
+                          {language === 'si' ? 'කේන්ද්‍ර කොළයේ ඡායාරූපයක් හෝ PDF එකක් අමුණන්න (JPG/PNG/PDF, උපරිම 10MB)' : 'Attach chart scan or photo (JPG/PNG/PDF, Max 10MB)'}
+                        </p>
+
+                        <input
+                          ref={chart2InputRef}
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) {
+                              setChart2File(f);
+                              setChart2Name(f.name);
+                            }
+                          }}
+                          className="hidden"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => chart2InputRef.current?.click()}
+                          className={`w-full py-2.5 px-3 rounded-xl border border-dashed text-xs font-semibold flex items-center justify-center space-x-2 transition cursor-pointer ${
+                            chart2File
+                              ? 'bg-emerald-50 border-emerald-400 text-emerald-800'
+                              : 'bg-white border-[#F8E4EB] text-[#AD3B65] hover:bg-[#F8E4EB]'
+                          }`}
+                        >
+                          <Upload className="w-4 h-4 text-[#C6A56B]" />
+                          <span className="truncate">
+                            {chart2File ? `✓ ${chart2Name} (Attached)` : (language === 'si' ? 'කේන්ද්‍ර පත්‍රය තෝරන්න (Upload Chart)' : 'Choose Chart File')}
+                          </span>
+                        </button>
                       </div>
                     </div>
                   </div>

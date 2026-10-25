@@ -172,15 +172,27 @@ class PublicController extends Controller
             'first_party_name' => 'required|string|max:255',
             'first_party_birth_datetime' => 'required|date',
             'first_party_birth_place' => 'required|string|max:255',
+            'first_party_chart' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
             'second_party_name' => 'required|string|max:255',
             'second_party_birth_datetime' => 'required|date',
             'second_party_birth_place' => 'required|string|max:255',
+            'second_party_chart' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
             'payment_method' => 'required|in:payhere,bank_transfer',
             'notes' => 'nullable|string',
         ]);
 
         $orderCode = 'HO-' . date('Y') . '-' . strtoupper(Str::random(6));
         $horoscopeFee = (float) AdminSetting::get('horoscope_fee_lkr', '2500');
+
+        $chart1Path = null;
+        if ($request->hasFile('first_party_chart')) {
+            $chart1Path = $request->file('first_party_chart')->store('horoscope_charts', 'public');
+        }
+
+        $chart2Path = null;
+        if ($request->hasFile('second_party_chart')) {
+            $chart2Path = $request->file('second_party_chart')->store('horoscope_charts', 'public');
+        }
 
         $horoscopeOrder = HoroscopeOrder::create([
             'order_code' => $orderCode,
@@ -190,9 +202,11 @@ class PublicController extends Controller
             'first_party_name' => $validated['first_party_name'],
             'first_party_birth_datetime' => $validated['first_party_birth_datetime'],
             'first_party_birth_place' => $validated['first_party_birth_place'],
+            'first_party_chart_file' => $chart1Path,
             'second_party_name' => $validated['second_party_name'],
             'second_party_birth_datetime' => $validated['second_party_birth_datetime'],
             'second_party_birth_place' => $validated['second_party_birth_place'],
+            'second_party_chart_file' => $chart2Path,
             'status' => 'pending_payment',
             'notes' => $validated['notes'] ?? null,
         ]);
