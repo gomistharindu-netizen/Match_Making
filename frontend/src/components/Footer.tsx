@@ -117,10 +117,19 @@ export const Footer: React.FC = () => {
           <p>
             © {new Date().getFullYear()} {t.brandName}. All rights reserved. Registered Matrimonial Agency in Sri Lanka.
           </p>
-          <div className="flex space-x-6">
+          <div className="flex flex-wrap items-center space-x-6">
             <span>Privacy Policy</span>
             <span>Terms of Service</span>
             <span>Owner-Approved Contact Guidelines</span>
+            <a
+              href="http://127.0.0.1:8000/admin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-gold-400 hover:text-gold-300 font-medium transition"
+            >
+              <Lock className="w-3.5 h-3.5 mr-1" />
+              Staff / Admin Portal →
+            </a>
           </div>
         </div>
       </div>
