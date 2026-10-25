@@ -1,18 +1,18 @@
 <div class="mb-6 text-center">
-    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] border-2 border-[#C6A56B] shadow-lg shadow-[#AD3B65]/25 mb-3">
-        <svg class="w-7 h-7 text-[#C6A56B] fill-[#C6A56B]" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#AD3B65] via-[#942A50] to-[#731E3C] border-2 border-[#C6A56B] shadow-xl shadow-[#AD3B65]/30 mb-3">
+        <svg class="w-9 h-9 text-[#C6A56B] fill-[#C6A56B]" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
         </svg>
     </div>
-    <h2 class="text-xl font-bold text-[#352A30] font-serif tracking-tight">
+    <h2 class="text-2xl font-bold text-[#352A30] font-serif tracking-tight">
         ජයතු ජය මංගල සේවාව
     </h2>
-    <p class="text-xs font-medium text-[#C6A56B] uppercase tracking-widest mt-1">
+    <p class="text-xs font-semibold text-[#C6A56B] uppercase tracking-widest mt-1">
         Agency Management Portal
     </p>
 
     <!-- Quick Credentials Helper Box -->
-    <div class="mt-4 p-3 rounded-xl bg-[#FFF8FA] border border-[#F3DCE4] text-left">
+    <div class="mt-4 p-3.5 rounded-xl bg-[#FFF8FA] border border-[#F3DCE4] shadow-sm text-left">
         <p class="text-[11px] font-bold text-[#AD3B65] uppercase tracking-wider mb-2 flex items-center">
             <span class="w-2 h-2 rounded-full bg-[#AD3B65] inline-block mr-1.5"></span>
             Demo Agency Credentials:
@@ -20,7 +20,7 @@
         <div class="grid grid-cols-2 gap-2 text-xs">
             <div 
                 onclick="fillLogin('admin@jayathujaya.lk', 'admin123')"
-                class="cursor-pointer p-2 rounded-lg bg-white border border-[#C6A56B]/30 hover:border-[#AD3B65] hover:shadow transition group"
+                class="cursor-pointer p-2.5 rounded-lg bg-white border border-[#C6A56B]/40 hover:border-[#AD3B65] hover:shadow-md transition group"
                 title="Click to auto-fill"
             >
                 <div class="font-bold text-[#352A30] group-hover:text-[#AD3B65]">Administrator</div>
@@ -29,7 +29,7 @@
             </div>
             <div 
                 onclick="fillLogin('staff@jayathujaya.lk', 'staff123')"
-                class="cursor-pointer p-2 rounded-lg bg-white border border-[#C6A56B]/30 hover:border-[#AD3B65] hover:shadow transition group"
+                class="cursor-pointer p-2.5 rounded-lg bg-white border border-[#C6A56B]/40 hover:border-[#AD3B65] hover:shadow-md transition group"
                 title="Click to auto-fill"
             >
                 <div class="font-bold text-[#352A30] group-hover:text-[#AD3B65]">Staff / Astrologer</div>

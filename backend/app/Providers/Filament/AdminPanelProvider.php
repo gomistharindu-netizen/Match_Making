@@ -31,7 +31,9 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandName('ජයතු ජය (Jayathu Jaya)')
             ->brandLogo(fn () => view('filament.brand-logo'))
-            ->brandLogoHeight('2.6rem')
+            ->brandLogoHeight('3rem')
+            ->darkMode(false)
+            ->sidebarWidth('19.5rem')
             ->colors([
                 'primary' => Color::hex('#AD3B65'),
                 'warning' => Color::hex('#C6A56B'),
@@ -40,7 +42,6 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'info' => Color::hex('#7C3AED'),
             ])
-            ->sidebarCollapsibleOnDesktop()
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn () => view('filament.custom-styles'),
