@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminPortalController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\MemberController;
@@ -47,5 +48,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/conversations/{id}/grant-contact', [ChatController::class, 'grantContact']);
         Route::post('/interests', [ChatController::class, 'sendInterest']);
         Route::put('/interests/{id}/respond', [ChatController::class, 'respondInterest']);
+    });
+
+    // Dedicated React/shadcn Admin Portal API
+    Route::prefix('admin')->group(function () {
+        Route::get('/stats', [AdminPortalController::class, 'stats']);
+        Route::get('/profiles', [AdminPortalController::class, 'profiles']);
+        Route::put('/profiles/{id}/status', [AdminPortalController::class, 'updateProfileStatus']);
+        Route::get('/horoscope-orders', [AdminPortalController::class, 'horoscopeOrders']);
+        Route::post('/horoscope-orders/{id}', [AdminPortalController::class, 'updateHoroscopeOrder']);
+        Route::get('/bank-slips', [AdminPortalController::class, 'bankSlips']);
+        Route::post('/bank-slips/{id}/verify', [AdminPortalController::class, 'verifyBankSlip']);
+        Route::get('/settings', [AdminPortalController::class, 'settings']);
+        Route::put('/settings', [AdminPortalController::class, 'updateSettings']);
+        Route::get('/users', [AdminPortalController::class, 'users']);
     });
 });
