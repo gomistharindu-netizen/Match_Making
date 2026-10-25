@@ -224,9 +224,18 @@ class AdminPortalController extends Controller
     {
         if ($deny = $this->checkAccess($request)) return $deny;
 
-        $data = $request->all();
+        $allowedKeys = [
+            'registration_payment_required',
+            'registration_fee_lkr',
+            'horoscope_fee_lkr',
+            'agency_name',
+            'agency_phone',
+            'agency_email',
+            'agency_bank_details',
+        ];
+
+        $data = $request->only($allowedKeys);
         foreach ($data as $key => $val) {
-            if ($key === '_token') continue;
             AdminSetting::set($key, is_bool($val) ? ($val ? 'true' : 'false') : (string) $val);
         }
 

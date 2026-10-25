@@ -82,6 +82,10 @@ class ChatController extends Controller
     {
         $profile = $request->user()->profile;
 
+        if (!$profile) {
+            return response()->json(['message' => 'Member profile required to access messages'], 400);
+        }
+
         $conv = Conversation::where('id', $id)
             ->where(function ($q) use ($profile) {
                 $q->where('profile_one_id', $profile->id)
@@ -126,6 +130,10 @@ class ChatController extends Controller
         ]);
 
         $profile = $request->user()->profile;
+
+        if (!$profile) {
+            return response()->json(['message' => 'Member profile required to send messages'], 400);
+        }
 
         $conv = Conversation::where('id', $id)
             ->where(function ($q) use ($profile) {
@@ -209,6 +217,10 @@ class ChatController extends Controller
 
         $myProfile = $request->user()->profile;
 
+        if (!$myProfile) {
+            return response()->json(['message' => 'Member profile required to respond to interest'], 400);
+        }
+
         $interest = Interest::where('id', $id)
             ->where('receiver_profile_id', $myProfile->id)
             ->firstOrFail();
@@ -248,6 +260,10 @@ class ChatController extends Controller
     public function grantContact(Request $request, int $conversationId): JsonResponse
     {
         $myProfile = $request->user()->profile;
+
+        if (!$myProfile) {
+            return response()->json(['message' => 'Member profile required to grant contact access'], 400);
+        }
 
         $conv = Conversation::where('id', $conversationId)
             ->where(function ($q) use ($myProfile) {

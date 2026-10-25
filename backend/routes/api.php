@@ -13,22 +13,22 @@ Route::prefix('public')->group(function () {
     Route::get('/settings', [PublicController::class, 'settings']);
     Route::get('/profiles', [PublicController::class, 'profiles']);
     Route::get('/profiles/{code}', [PublicController::class, 'profileDetails']);
-    Route::post('/horoscope-orders', [PublicController::class, 'createHoroscopeOrder']);
+    Route::post('/horoscope-orders', [PublicController::class, 'createHoroscopeOrder'])->middleware('throttle:public-submissions');
     Route::get('/horoscope-orders/{code}', [PublicController::class, 'trackHoroscopeOrder']);
 });
 
-// Authentication Endpoints
+// Authentication Endpoints (Rate Limited)
 Route::prefix('auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:secure-register');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:secure-login');
 });
 
 // Payment Handlers
-Route::post('/payments/bank-slip', [PaymentController::class, 'submitBankSlip']);
+Route::post('/payments/bank-slip', [PaymentController::class, 'submitBankSlip'])->middleware('throttle:public-submissions');
 Route::post('/payments/payhere-notify', [PaymentController::class, 'payhereNotify']);
 
-// Authenticated Member Endpoints (Requires Sanctum Token)
-Route::middleware('auth:sanctum')->group(function () {
+// Authenticated Member Endpoints (Requires Sanctum Token + Throttled)
+Route::middleware(['auth:sanctum', 'throttle:secure-api'])->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
@@ -50,8 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/interests/{id}/respond', [ChatController::class, 'respondInterest']);
     });
 
-    // Dedicated React/shadcn Admin Portal API
-    Route::prefix('admin')->group(function () {
+    // Dedicated React/shadcn Admin Portal API (Enforced by Admin Middleware)
+    Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/stats', [AdminPortalController::class, 'stats']);
         Route::get('/profiles', [AdminPortalController::class, 'profiles']);
         Route::put('/profiles/{id}/status', [AdminPortalController::class, 'updateProfileStatus']);

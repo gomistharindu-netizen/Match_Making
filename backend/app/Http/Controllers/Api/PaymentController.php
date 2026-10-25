@@ -9,6 +9,8 @@ use App\Models\Membership;
 use App\Models\PaymentOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PaymentController extends Controller
@@ -24,7 +26,7 @@ class PaymentController extends Controller
             'branch_name' => 'nullable|string|max:100',
             'deposit_date' => 'required|date',
             'reference_no' => 'nullable|string|max:100',
-            'slip' => 'required|image|max:10240', // Max 10MB
+            'slip' => 'required|file|mimes:jpeg,png,jpg,webp,pdf|max:10240', // Max 10MB, strictly validated
             'notes' => 'nullable|string|max:500',
         ]);
 
@@ -61,16 +63,32 @@ class PaymentController extends Controller
     }
 
     /**
-     * PayHere IPN Webhook Notification Handler
+     * PayHere IPN Webhook Notification Handler (Verified with Cryptographic Signature)
      */
     public function payhereNotify(Request $request): JsonResponse
     {
-        $merchantId = $request->merchant_id;
-        $orderId = $request->order_id;
-        $payhereAmount = $request->payhere_amount;
-        $payhereCurrency = $request->payhere_currency;
-        $statusCode = $request->status_code; // 2 = success
-        $md5sig = $request->md5sig;
+        $merchantId = (string) $request->input('merchant_id');
+        $orderId = (string) $request->input('order_id');
+        $payhereAmount = (string) $request->input('payhere_amount');
+        $payhereCurrency = (string) $request->input('payhere_currency');
+        $statusCode = (string) $request->input('status_code'); // 2 = success
+        $md5sig = (string) $request->input('md5sig');
+
+        $merchantSecret = config('services.payhere.merchant_secret');
+
+        // Cryptographic Signature Validation if merchant secret is configured
+        if ($merchantSecret) {
+            $hashedSecret = strtoupper(md5($merchantSecret));
+            $expectedSignature = strtoupper(md5($merchantId . $orderId . $payhereAmount . $payhereCurrency . $statusCode . $hashedSecret));
+
+            if (!hash_equals($expectedSignature, $md5sig)) {
+                Log::warning('PayHere IPN signature verification failed', [
+                    'order_id' => $orderId,
+                    'provided_sig' => $md5sig,
+                ]);
+                return response()->json(['status' => 'invalid_signature'], 400);
+            }
+        }
 
         // Find payment order
         $paymentOrder = PaymentOrder::where('order_code', $orderId)->first();
@@ -79,28 +97,45 @@ class PaymentController extends Controller
             return response()->json(['status' => 'order_not_found'], 404);
         }
 
-        if ((int) $statusCode === 2) {
-            // Payment Success
-            $paymentOrder->update([
-                'payment_status' => 'verified',
-                'gateway_transaction_id' => $request->payment_id,
-            ]);
+        // Idempotency check: if already processed, acknowledge without re-executing
+        if ($paymentOrder->payment_status === 'verified') {
+            return response()->json(['status' => 'already_processed']);
+        }
 
-            // Handle service fulfillment
-            if ($paymentOrder->service_type === 'membership' && $paymentOrder->user_id) {
-                Membership::firstOrCreate(
-                    ['user_id' => $paymentOrder->user_id],
-                    [
-                        'payment_order_id' => $paymentOrder->id,
-                        'activation_source' => 'payhere',
-                        'activated_at' => now(),
-                    ]
-                );
-            } elseif ($paymentOrder->service_type === 'horoscope' && $paymentOrder->horoscope_order_id) {
-                $paymentOrder->horoscopeOrder()->update([
-                    'status' => 'in_review',
+        // Verify amount matches the recorded order amount within minor float delta
+        if (abs((float) $payhereAmount - (float) $paymentOrder->amount) > 0.01) {
+            Log::warning('PayHere IPN amount mismatch', [
+                'order_id' => $orderId,
+                'paid_amount' => $payhereAmount,
+                'expected_amount' => $paymentOrder->amount,
+            ]);
+            return response()->json(['status' => 'amount_mismatch'], 400);
+        }
+
+        if ((int) $statusCode === 2) {
+            DB::transaction(function () use ($paymentOrder, $request) {
+                // Payment Success
+                $paymentOrder->update([
+                    'payment_status' => 'verified',
+                    'gateway_transaction_id' => $request->input('payment_id'),
                 ]);
-            }
+
+                // Handle service fulfillment
+                if ($paymentOrder->service_type === 'membership' && $paymentOrder->user_id) {
+                    Membership::firstOrCreate(
+                        ['user_id' => $paymentOrder->user_id],
+                        [
+                            'payment_order_id' => $paymentOrder->id,
+                            'activation_source' => 'payhere',
+                            'activated_at' => now(),
+                        ]
+                    );
+                } elseif ($paymentOrder->service_type === 'horoscope' && $paymentOrder->horoscope_order_id) {
+                    $paymentOrder->horoscopeOrder()->update([
+                        'status' => 'in_review',
+                    ]);
+                }
+            });
         }
 
         return response()->json(['status' => 'acknowledged']);
