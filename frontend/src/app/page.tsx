@@ -47,7 +47,7 @@ export default function HomePage() {
   return (
     <div className="space-y-16 pb-20">
       {/* FULL HEIGHT HERO SECTION */}
-      <section className="relative min-h-[92vh] sm:min-h-screen flex flex-col justify-between overflow-hidden bg-stone-900 pt-24 pb-8 sm:pt-28 sm:pb-10">
+      <section className="relative min-h-[88vh] flex flex-col justify-between overflow-hidden bg-stone-900 pt-16 pb-6 sm:pt-20 sm:pb-8">
         {/* Full Viewport Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-no-repeat bg-[position:73%_top] sm:bg-[position:center_right]"
@@ -57,25 +57,44 @@ export default function HomePage() {
         >
           {/* Subtle gradient overlay: On mobile, a balanced vignette so the centered couple glows beautifully while text remains ultra-clear */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/45 sm:hidden" />
-          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent sm:from-black/70 sm:via-black/25 sm:to-transparent" />
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent sm:from-black/75 sm:via-black/30 sm:to-transparent" />
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+        </div>
+
+        {/* Right side floating badge over the couple (Frames the couple & removes one-sided asymmetry) */}
+        <div className="hidden lg:block absolute right-8 xl:right-16 top-1/3 -translate-y-1/2 z-10 pointer-events-none">
+          <div className="bg-black/55 backdrop-blur-md border border-[#C6A56B]/60 rounded-3xl p-4 shadow-2xl space-y-1.5 max-w-[230px] ring-1 ring-white/10">
+            <div className="flex items-center space-x-1.5 text-[#C6A56B] text-xs font-bold tracking-wide">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{language === 'si' ? 'රාජකීය උරුමය' : 'Royal Heritage'}</span>
+            </div>
+            <p className="text-xs font-medium text-white/95 leading-relaxed">
+              {language === 'si'
+                ? 'පාරම්පරික සාරධර්ම සුරකින අභිමානවත් මංගල සේවාව'
+                : 'Prestigious matrimonial service honoring traditional Sri Lankan values.'}
+            </p>
+            <div className="pt-1 flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>{language === 'si' ? '100% තහවුරු කළ සබඳතා' : '100% Verified Agency'}</span>
+            </div>
+          </div>
         </div>
 
         {/* Hero Main Content Area */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-between flex-1">
-          {/* Vertical Middle Area for Royal Headline & Tagline (Vertically Centered in Available Space) */}
-          <div className="flex-1 flex flex-col justify-center max-w-2xl text-center sm:text-left mx-auto sm:mx-0 py-8 sm:py-12">
-            <div className="space-y-3">
+          {/* Vertical Middle Area for Royal Headline, CTA Buttons & Trust Indicators */}
+          <div className="flex-1 flex flex-col justify-center max-w-2xl text-center sm:text-left mx-auto sm:mx-0 py-6 sm:py-8">
+            <div className="space-y-4">
               <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-[#AD3B65]/90 backdrop-blur-md text-[#FFF8FA] text-xs font-bold tracking-widest uppercase shadow-lg shadow-[#AD3B65]/25 border border-[#C6A56B]/50 ring-1 ring-white/10 mb-1">
                 <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
                 <span className="font-serif">{language === 'si' ? 'විශ්වාසනීය රාජකීය මංගල සේවාව' : "Sri Lanka's Royal Matrimony"}</span>
               </div>
               
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif text-white tracking-wide drop-shadow-[0_4px_16px_rgba(0,0,0,0.7)] leading-[1.25]">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif text-white tracking-wide drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] leading-[1.2]">
                 {language === 'si' ? (
                   <>
                     ඔබට ගැලපෙන{' '}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7E7CE] via-[#E8C88B] to-[#C6A56B] drop-shadow-sm font-extrabold">
+                    <span className="text-[#F3DEB3] font-extrabold drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
                       උතුම් සහකරු
                     </span>{' '}
                     සොයන්න
@@ -83,24 +102,73 @@ export default function HomePage() {
                 ) : (
                   <>
                     Find Your{' '}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7E7CE] via-[#E8C88B] to-[#C6A56B] drop-shadow-sm font-extrabold">
+                    <span className="text-[#F3DEB3] font-extrabold drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
                       Ideal Life Partner
                     </span>
                   </>
                 )}
               </h1>
 
-              <p className="text-xs sm:text-sm lg:text-base text-stone-100 font-serif font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] max-w-xl mx-auto sm:mx-0 leading-relaxed">
+              <p className="text-xs sm:text-sm lg:text-base text-stone-100 font-serif font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] max-w-xl mx-auto sm:mx-0 leading-relaxed">
                 {language === 'si'
                   ? 'දේශීය හා විදේශගත ශ්‍රී ලාංකිකයන් සඳහාම වෙන්වූ ගෞරවනීය, පාරම්පරික සාරධර්ම සුරකින අභිමානවත් මංගල සේවාව'
                   : 'Connecting respected families across Sri Lanka and worldwide with owner-approved contact privacy and traditional values.'}
               </p>
+
+              {/* Quick Action CTA Buttons */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-1">
+                <Link
+                  href="/browse"
+                  className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#AD3B65] via-[#8E2E52] to-[#731E3C] hover:from-[#8E2E52] hover:to-[#5E1630] text-white font-bold text-xs sm:text-sm shadow-xl shadow-[#AD3B65]/40 border border-[#C6A56B]/60 transition transform hover:-translate-y-0.5 flex items-center space-x-2 group"
+                >
+                  <span>{language === 'si' ? 'මංගල යෝජනා බලන්න' : 'Explore Proposals'}</span>
+                  <ArrowRight className="w-4 h-4 text-[#C6A56B] group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/horoscope"
+                  className="px-5 py-2.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white font-bold text-xs sm:text-sm border border-[#C6A56B]/60 hover:border-[#C6A56B] transition flex items-center space-x-2"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
+                  <span>{language === 'si' ? 'කේන්ද්‍ර ගැලපීම' : 'Horoscope Matching'}</span>
+                </Link>
+              </div>
+
+              {/* Trust Indicators Ribbon (Fills empty void & establishes prestige) */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-3 max-w-lg border-t border-white/20">
+                <div className="flex items-center space-x-2 text-left">
+                  <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-extrabold text-white font-serif">100% Verified</div>
+                    <div className="text-[9px] sm:text-[10px] text-stone-300 font-medium">{language === 'si' ? 'සත්‍යාපිත යෝජනා' : 'Verified Profiles'}</div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 text-left">
+                  <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center shrink-0">
+                    <Lock className="w-4 h-4 text-[#C6A56B]" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-extrabold text-white font-serif">Privacy First</div>
+                    <div className="text-[9px] sm:text-[10px] text-stone-300 font-medium">{language === 'si' ? 'රහස්‍ය අංක හුවමාරුව' : 'Contact Guard'}</div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 text-left">
+                  <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-extrabold text-white font-serif">Porondam</div>
+                    <div className="text-[9px] sm:text-[10px] text-stone-300 font-medium">{language === 'si' ? 'ප්‍රවීණ ජ්‍යොතිෂය' : 'Horoscope Match'}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Bottom: Wide Horizontal Frosted Glass Search Dock (Translucent Glassmorphism) */}
-          <div className="w-full pb-2 sm:pb-4">
-            <div className="bg-white/25 hover:bg-white/30 backdrop-blur-2xl rounded-[28px] sm:rounded-[32px] p-3 sm:p-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.35)] border border-white/40 ring-1 ring-white/20 transition-all duration-300">
+          <div className="w-full pt-2 pb-2 sm:pb-3">
+            <div className="bg-white/90 hover:bg-white/95 backdrop-blur-2xl rounded-[26px] sm:rounded-[30px] p-3 sm:p-4 shadow-[0_12px_40px_0_rgba(0,0,0,0.35)] border border-white/80 ring-1 ring-white/40 transition-all duration-300">
               <form onSubmit={handleHeroSearch} className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5 w-full">
                 {/* 1. Left: Groom / Bride Stacked Buttons */}
                 <div className="flex flex-row lg:flex-col gap-1.5 w-full lg:w-44 shrink-0">
@@ -110,7 +178,7 @@ export default function HomePage() {
                     className={`flex-1 lg:flex-none py-2 px-3 rounded-xl text-xs font-extrabold transition-all duration-200 flex items-center justify-center space-x-1.5 border shadow-sm ${
                       seekingGender === 'groom'
                         ? 'bg-[#AD3B65] text-white border-[#AD3B65] shadow-md shadow-[#AD3B65]/35'
-                        : 'bg-white/60 hover:bg-white/80 text-[#352A30] border-white/70 backdrop-blur-md'
+                        : 'bg-white hover:bg-stone-50 text-[#352A30] border-stone-200'
                     }`}
                   >
                     <span className="text-sm">🤵</span>
@@ -123,7 +191,7 @@ export default function HomePage() {
                     className={`flex-1 lg:flex-none py-2 px-3 rounded-xl text-xs font-extrabold transition-all duration-200 flex items-center justify-center space-x-1.5 border shadow-sm ${
                       seekingGender === 'bride'
                         ? 'bg-[#AD3B65] text-white border-[#AD3B65] shadow-md shadow-[#AD3B65]/35'
-                        : 'bg-white/60 hover:bg-white/80 text-[#352A30] border-white/70 backdrop-blur-md'
+                        : 'bg-white hover:bg-stone-50 text-[#352A30] border-stone-200'
                     }`}
                   >
                     <span className="text-sm">👰</span>
@@ -134,7 +202,7 @@ export default function HomePage() {
                 {/* 2. Middle: Horizontal Filters Grid (Glass Cards with Specular Highlights) */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 flex-1">
                   {/* NATIONALITY */}
-                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                  <div className="bg-[#FFF8FA] hover:bg-white focus-within:bg-white p-2.5 rounded-2xl border border-stone-200/90 shadow-xs transition duration-200">
                     <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'ජාතිකත්වය' : 'NATIONALITY'}
                     </label>
@@ -153,7 +221,7 @@ export default function HomePage() {
                   </div>
 
                   {/* LOCATION / DISTRICT */}
-                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                  <div className="bg-[#FFF8FA] hover:bg-white focus-within:bg-white p-2.5 rounded-2xl border border-stone-200/90 shadow-xs transition duration-200">
                     <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'දිස්ත්‍රික්කය / රට' : 'LOCATION'}
                     </label>
@@ -177,7 +245,7 @@ export default function HomePage() {
                   </div>
 
                   {/* AGE RANGE */}
-                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                  <div className="bg-[#FFF8FA] hover:bg-white focus-within:bg-white p-2.5 rounded-2xl border border-stone-200/90 shadow-xs transition duration-200">
                     <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'වයස් පරාසය' : 'AGE RANGE'}
                     </label>
@@ -199,7 +267,7 @@ export default function HomePage() {
                   </div>
 
                   {/* RELIGION */}
-                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200">
+                  <div className="bg-[#FFF8FA] hover:bg-white focus-within:bg-white p-2.5 rounded-2xl border border-stone-200/90 shadow-xs transition duration-200">
                     <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'ආගම' : 'RELIGION'}
                     </label>
@@ -220,7 +288,7 @@ export default function HomePage() {
                   </div>
 
                   {/* HOROSCOPE */}
-                  <div className="bg-white/65 hover:bg-white/85 focus-within:bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-white/70 shadow-sm transition duration-200 col-span-2 sm:col-span-1">
+                  <div className="bg-[#FFF8FA] hover:bg-white focus-within:bg-white p-2.5 rounded-2xl border border-stone-200/90 shadow-xs transition duration-200 col-span-2 sm:col-span-1">
                     <label className="block text-[10px] font-extrabold text-[#AD3B65] uppercase tracking-wider mb-0.5">
                       {language === 'si' ? 'කේන්ද්‍රය' : 'HOROSCOPE'}
                     </label>

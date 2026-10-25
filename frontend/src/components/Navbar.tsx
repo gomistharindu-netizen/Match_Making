@@ -34,9 +34,9 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#F8E4EB] transition-all duration-300">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#F8E4EB] transition-all duration-300 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-18 py-2">
           {/* Logo & Sinhala/English Brand Title */}
           <Link href="/" className="flex items-center space-x-2.5 group shrink-0">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] flex items-center justify-center shadow-md shadow-[#AD3B65]/20 group-hover:scale-105 transition-transform duration-300">
@@ -52,23 +52,25 @@ export const Navbar: React.FC = () => {
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+          {/* Desktop Nav Links in Royal Capsule */}
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-1.5 bg-[#FFF8FA]/90 px-3 py-1.5 rounded-full border border-[#F8E4EB] shadow-xs">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all relative ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all relative ${
                     active
-                      ? 'text-[#AD3B65] bg-[#F8E4EB]/70'
-                      : 'text-[#352A30] hover:text-[#AD3B65] hover:bg-[#FFF8FA]'
+                      ? 'text-white bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] shadow-sm'
+                      : 'text-[#352A30] hover:text-[#AD3B65] hover:bg-white'
                   }`}
                 >
                   {link.label}
                   {link.badge && (
-                    <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-full bg-[#C6A56B]/20 text-[#8E2E52] font-extrabold uppercase">
+                    <span className={`ml-1 text-[9px] px-1.5 py-0.2 rounded-full font-extrabold uppercase ${
+                      active ? 'bg-[#C6A56B] text-stone-900' : 'bg-[#C6A56B]/20 text-[#8E2E52]'
+                    }`}>
                       {link.badge}
                     </span>
                   )}
