@@ -47,25 +47,30 @@ export default function MessagesPage() {
 
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const mapped: Conversation[] = data.map((c: any) => ({
-              id: String(c.id),
-              profileId: String(c.partner.id),
-              profileCode: c.partner.profile_code,
-              candidateName: c.partner.display_name,
-              photoUrl: c.partner.primary_photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80',
-              lastMessage: c.last_message || 'New conversation channel opened',
-              lastTimestamp: c.last_message_at
-                ? new Date(c.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : 'Recently',
-              unreadCount: c.unread_count || 0,
-              contactReleased: c.contact_released_to_me,
-              messages: [],
-            }));
-
-            setConversations(mapped);
-            setActiveConvId(mapped[0]?.id || '');
+          if (Array.isArray(data)) {
             setIsLiveApi(true);
+            if (data.length > 0) {
+              const mapped: Conversation[] = data.map((c: any) => ({
+                id: String(c.id),
+                profileId: String(c.partner.id),
+                profileCode: c.partner.profile_code,
+                candidateName: c.partner.display_name,
+                photoUrl: c.partner.primary_photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80',
+                lastMessage: c.last_message || 'New conversation channel opened',
+                lastTimestamp: c.last_message_at
+                  ? new Date(c.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : 'Recently',
+                unreadCount: c.unread_count || 0,
+                contactReleased: c.contact_released_to_me,
+                messages: [],
+              }));
+
+              setConversations(mapped);
+              setActiveConvId(mapped[0]?.id || '');
+            } else {
+              setConversations([]);
+              setActiveConvId('');
+            }
           }
         }
       } catch {
