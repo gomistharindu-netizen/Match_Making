@@ -23,13 +23,14 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/a
 export default function MessagesPage() {
   const { language, t } = useLanguage();
   const { role } = useDemo();
-  const { isAuthenticated, token } = useAuth();
+  const { user, isAuthenticated, token, login } = useAuth();
 
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [activeConvId, setActiveConvId] = useState<string>(mockConversations[0]?.id || '');
   const [inputText, setInputText] = useState<string>('');
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
   const [isLiveApi, setIsLiveApi] = useState<boolean>(false);
+  const [demoLoginLoading, setDemoLoginLoading] = useState<boolean>(false);
 
   // Load live conversations from Laravel API if authenticated
   useEffect(() => {
@@ -110,6 +111,12 @@ export default function MessagesPage() {
   }, [activeConvId, isLiveApi, token]);
 
   const currentConv = conversations.find((c) => c.id === activeConvId);
+
+  const handleDemoMemberLogin = async () => {
+    setDemoLoginLoading(true);
+    await login('kasun@gmail.com', 'secret123');
+    setDemoLoginLoading(false);
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,6 +250,42 @@ export default function MessagesPage() {
           </div>
         ) : (
           <>
+            {/* Live vs Demo Mode Indicator Strip */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white rounded-2xl p-3.5 sm:px-5 border border-[#F8E4EB] shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isLiveApi ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+                <div className="text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-[#352A30]">
+                      {isLiveApi ? 'සජීවී සාමාජික පණිවිඩ (Live Database - MySQL)' : 'නියැදි දත්ත පෙරදසුන (Demo Preview / Mock Data)'}
+                    </span>
+                    <span className={`px-2 py-0.2 rounded-full text-[10px] font-extrabold uppercase ${
+                      isLiveApi ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'
+                    }`}>
+                      {isLiveApi ? 'LIVE API' : 'MOCK'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-500">
+                    {isLiveApi
+                      ? `ලියාපදිංචි සාමාජික ගිණුම: ${user?.name} (${user?.email}) හරහා Laravel API වෙත සෘජුව සම්බන්ධ වී ඇත.`
+                      : 'නොමිලේ හෝ Guest පරිශීලකයින්ට පද්ධතිය පරීක්ෂා කිරීම සඳහා මෙම Mock Data පෙන්වයි. සැබෑ පණිවිඩ අත්හදා බැලීමට සාමාජිකයෙකු ලෙස ලොග් වන්න.'}
+                  </p>
+                </div>
+              </div>
+
+              {!isLiveApi && (
+                <button
+                  type="button"
+                  onClick={handleDemoMemberLogin}
+                  disabled={demoLoginLoading}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] hover:from-[#8E2E52] hover:to-[#6E1F3C] text-white text-xs font-bold shadow-xs hover:shadow-md transition flex items-center gap-1.5 shrink-0"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-[#C6A56B]" />
+                  <span>{demoLoginLoading ? 'සම්බන්ධ වෙමින්...' : 'සැබෑ Member ලෙස ලොග් වන්න (Kasun)'}</span>
+                </button>
+              )}
+            </div>
+
             {/* Chat Container */}
             <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#F8E4EB] shadow-sm overflow-hidden flex flex-col md:grid md:grid-cols-3 h-[78vh] min-h-[520px] max-h-[740px] sm:h-[680px]">
               {/* Left: Conversation List */}
