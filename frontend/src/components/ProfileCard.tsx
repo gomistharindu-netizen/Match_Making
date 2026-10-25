@@ -4,7 +4,7 @@ import React from 'react';
 import { MatrimonialProfile } from '../data/mockProfiles';
 import { useLanguage } from '../context/LanguageContext';
 import { useDemo } from '../context/DemoContext';
-import { ShieldCheck, Heart, Sparkles, MapPin, Briefcase, GraduationCap, Globe, Check, Eye } from 'lucide-react';
+import { Heart, Sparkles, MapPin, Briefcase, GraduationCap, Globe, Check, Eye } from 'lucide-react';
 
 interface ProfileCardProps {
   profile: MatrimonialProfile;
@@ -31,7 +31,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
 
-        {/* Top Badges Header Bar (No overlapping) */}
+        {/* Top Badges Header Bar */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-1.5 z-10">
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="bg-[#AD3B65]/90 text-white font-mono text-xs px-2.5 py-1 rounded-md font-bold tracking-wide backdrop-blur border border-white/20 shadow-sm">
@@ -43,14 +43,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
                 <span>{t.profiles.overseas}</span>
               </span>
             )}
-          </div>
-
-          {/* Verified Badge */}
-          <div className="bg-white/95 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold flex items-center space-x-1 backdrop-blur shadow shrink-0">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span className="font-sans text-[11px] font-bold">
-              {language === 'si' ? 'තහවුරුයි' : 'Verified'}
-            </span>
           </div>
         </div>
 
