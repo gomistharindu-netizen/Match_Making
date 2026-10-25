@@ -4,7 +4,7 @@ import React from 'react';
 import { MatrimonialProfile } from '../data/mockProfiles';
 import { useLanguage } from '../context/LanguageContext';
 import { useDemo } from '../context/DemoContext';
-import { ShieldCheck, Heart, Sparkles, MapPin, Briefcase, GraduationCap, Globe, Check } from 'lucide-react';
+import { ShieldCheck, Heart, Sparkles, MapPin, Briefcase, GraduationCap, Globe, Check, Eye } from 'lucide-react';
 
 interface ProfileCardProps {
   profile: MatrimonialProfile;
@@ -31,23 +31,27 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
 
-        {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-          <span className="bg-[#AD3B65]/90 text-white font-mono text-xs px-2.5 py-1 rounded-md font-bold tracking-wide backdrop-blur border border-white/20 shadow-sm">
-            {profile.code}
-          </span>
-          {profile.isOverseas && (
-            <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-md font-semibold flex items-center space-x-1 shadow">
-              <Globe className="w-3 h-3" />
-              <span>{t.profiles.overseas}</span>
+        {/* Top Badges Header Bar (No overlapping) */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-1.5 z-10">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="bg-[#AD3B65]/90 text-white font-mono text-xs px-2.5 py-1 rounded-md font-bold tracking-wide backdrop-blur border border-white/20 shadow-sm">
+              {profile.code}
             </span>
-          )}
-        </div>
+            {profile.isOverseas && (
+              <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-md font-semibold flex items-center space-x-1 shadow">
+                <Globe className="w-3 h-3" />
+                <span>{t.profiles.overseas}</span>
+              </span>
+            )}
+          </div>
 
-        {/* Verified Badge */}
-        <div className="absolute top-3 right-3 bg-white/95 text-emerald-700 text-xs px-2 py-1 rounded-md font-semibold flex items-center space-x-1 backdrop-blur shadow">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>{t.profiles.verified}</span>
+          {/* Verified Badge */}
+          <div className="bg-white/95 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold flex items-center space-x-1 backdrop-blur shadow shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span className="font-sans text-[11px] font-bold">
+              {language === 'si' ? 'තහවුරුයි' : 'Verified'}
+            </span>
+          </div>
         </div>
 
         {/* Bottom Details on Image */}
@@ -115,39 +119,46 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
           </div>
         </div>
 
-        {/* Card Actions */}
-        <div className="pt-3 border-t border-[#F8E4EB] flex items-center gap-2">
+        {/* Card Actions - Equal 50/50 Dual Luxury Buttons */}
+        <div className="pt-3 border-t border-[#F8E4EB] grid grid-cols-2 gap-2">
+          {/* View Details Button */}
           <button
+            type="button"
             onClick={() => onOpenModal(profile)}
-            className="flex-1 bg-[#FFF8FA] hover:bg-[#F8E4EB] text-[#352A30] font-bold py-2 px-3 rounded-xl text-xs transition text-center border border-[#F8E4EB]"
+            className="w-full h-10 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-[#FFF8FA] hover:bg-[#F8E4EB] text-[#352A30] hover:text-[#AD3B65] border border-[#F8E4EB] hover:border-[#AD3B65]/30 shadow-xs active:scale-[0.98]"
+            title={t.profiles.viewDetails}
           >
-            {t.profiles.viewDetails}
+            <Eye className="w-3.5 h-3.5 text-[#AD3B65] shrink-0" />
+            <span className="whitespace-nowrap truncate">{t.profiles.viewDetails}</span>
           </button>
 
+          {/* Express Interest Button */}
           <button
+            type="button"
             onClick={() => sendInterest(profile.id)}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 ${
+            className={`w-full h-10 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs active:scale-[0.98] ${
               isAccepted
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                 : isPending
                 ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                : 'bg-[#AD3B65] hover:bg-[#972F55] text-white shadow-md shadow-[#AD3B65]/20 hover:shadow-lg'
+                : 'bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] hover:from-[#972F55] hover:to-[#AD3B65] text-white shadow-md shadow-[#AD3B65]/20 hover:shadow-lg'
             }`}
+            title={t.profiles.expressInterest}
           >
             {isAccepted ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-700" />
-                <span className="hidden sm:inline">{t.profiles.contactApproved}</span>
+                <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                <span className="whitespace-nowrap truncate">{t.profiles.contactApproved}</span>
               </>
             ) : isPending ? (
               <>
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping mr-1" />
-                <span>{t.profiles.interestSent}</span>
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping mr-0.5 shrink-0" />
+                <span className="whitespace-nowrap truncate">{t.profiles.interestSent}</span>
               </>
             ) : (
               <>
-                <Heart className="w-3.5 h-3.5 fill-current" />
-                <span>{t.profiles.expressInterest}</span>
+                <Heart className="w-3.5 h-3.5 fill-current shrink-0 text-white" />
+                <span className="whitespace-nowrap truncate">{t.profiles.expressInterest}</span>
               </>
             )}
           </button>
