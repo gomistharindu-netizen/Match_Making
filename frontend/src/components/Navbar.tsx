@@ -35,40 +35,40 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#F8E4EB] transition-all duration-300 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 py-2">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-18 py-2 gap-2 xl:gap-4">
           {/* Logo & Sinhala/English Brand Title */}
-          <Link href="/" className="flex items-center space-x-2.5 group shrink-0">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] flex items-center justify-center shadow-md shadow-[#AD3B65]/20 group-hover:scale-105 transition-transform duration-300">
-              <Heart className="w-5 h-5 text-white fill-current animate-pulse" />
+          <Link href="/" className="flex items-center space-x-2 xl:space-x-2.5 group shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#AD3B65] to-[#8E2E52] flex items-center justify-center shadow-md shadow-[#AD3B65]/20 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <Heart className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white fill-current animate-pulse" />
             </div>
-            <div>
-              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#AD3B65] via-[#8E2E52] to-[#352A30] bg-clip-text text-transparent font-serif tracking-tight">
+            <div className="shrink-0">
+              <span className="text-lg sm:text-xl xl:text-2xl font-bold bg-gradient-to-r from-[#AD3B65] via-[#8E2E52] to-[#352A30] bg-clip-text text-transparent font-serif tracking-tight whitespace-nowrap">
                 {t.brandName}
               </span>
-              <p className="text-[10px] text-[#C6A56B] uppercase tracking-wider font-semibold">
+              <p className="text-[9px] sm:text-[10px] text-[#C6A56B] uppercase tracking-wider font-semibold whitespace-nowrap">
                 {language === 'si' ? 'මංගල සේවාව' : 'Matrimonial'}
               </p>
             </div>
           </Link>
 
-          {/* Desktop Nav Links in Royal Capsule */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-1.5 bg-[#FFF8FA]/90 px-3 py-1.5 rounded-full border border-[#F8E4EB] shadow-xs">
+          {/* Desktop Nav Links in Royal Capsule (Zero-Wrap) */}
+          <nav className="hidden lg:flex items-center space-x-0.5 xl:space-x-1.5 bg-[#FFF8FA]/90 px-2.5 xl:px-3 py-1.5 rounded-full border border-[#F8E4EB] shadow-xs shrink-0">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all relative ${
+                  className={`px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all relative whitespace-nowrap shrink-0 ${
                     active
                       ? 'text-white bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] shadow-sm'
                       : 'text-[#352A30] hover:text-[#AD3B65] hover:bg-white'
                   }`}
                 >
-                  {link.label}
+                  <span className="whitespace-nowrap">{link.label}</span>
                   {link.badge && (
-                    <span className={`ml-1 text-[9px] px-1.5 py-0.2 rounded-full font-extrabold uppercase ${
+                    <span className={`ml-1 text-[9px] px-1.5 py-0.2 rounded-full font-extrabold uppercase shrink-0 ${
                       active ? 'bg-[#C6A56B] text-stone-900' : 'bg-[#C6A56B]/20 text-[#8E2E52]'
                     }`}>
                       {link.badge}
@@ -80,11 +80,11 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Right Action Items */}
-          <div className="hidden sm:flex items-center space-x-2 shrink-0 whitespace-nowrap">
+          <div className="hidden sm:flex items-center space-x-1.5 xl:space-x-2 shrink-0 whitespace-nowrap">
             {/* Language Switcher Pill */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-[#FFF8FA] hover:bg-[#F8E4EB] text-[#352A30] transition border border-[#F8E4EB] whitespace-nowrap shrink-0"
+              className="flex items-center space-x-1 xl:space-x-1.5 px-2.5 xl:px-3 py-1.5 text-xs font-bold rounded-full bg-[#FFF8FA] hover:bg-[#F8E4EB] text-[#352A30] transition border border-[#F8E4EB] whitespace-nowrap shrink-0 shadow-xs"
               title="Toggle Language"
             >
               <Globe className="w-3.5 h-3.5 text-[#C6A56B] shrink-0" />
@@ -92,10 +92,10 @@ export const Navbar: React.FC = () => {
             </button>
 
             {isAuthenticated ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 shrink-0">
                 <Link
                   href="/profile"
-                  className="flex items-center space-x-2 bg-[#FFF8FA] hover:bg-[#F8E4EB] border border-[#F8E4EB] pl-1.5 pr-3 py-1 rounded-full shadow-xs transition group"
+                  className="flex items-center space-x-2 bg-[#FFF8FA] hover:bg-[#F8E4EB] border border-[#F8E4EB] pl-1.5 pr-3 py-1 rounded-full shadow-xs transition group shrink-0"
                   title={language === 'si' ? 'මගේ Profile තොරතුරු සහ ඡායාරූප' : 'My Profile & Photos'}
                 >
                   <div className="w-6 h-6 rounded-full overflow-hidden bg-[#AD3B65] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
@@ -112,24 +112,24 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={logout}
                   title={language === 'si' ? 'ඉවත් වන්න' : 'Sign Out'}
-                  className="p-1.5 rounded-full text-[#352A30]/70 hover:text-[#AD3B65] hover:bg-[#F8E4EB] transition cursor-pointer"
+                  className="p-1.5 rounded-full text-[#352A30]/70 hover:text-[#AD3B65] hover:bg-[#F8E4EB] transition cursor-pointer shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 shrink-0">
                 <Link
                   href="/login"
-                  className="px-3 py-1.5 text-xs font-bold rounded-full text-[#AD3B65] hover:bg-[#F8E4EB] transition flex items-center space-x-1"
+                  className="px-2.5 xl:px-3 py-1.5 text-xs font-bold rounded-full text-[#AD3B65] bg-[#FFF8FA] hover:bg-[#F8E4EB] border border-[#F8E4EB] transition flex items-center space-x-1 whitespace-nowrap shrink-0 shadow-xs"
                 >
-                  <LogIn className="w-3.5 h-3.5 text-[#C6A56B]" />
-                  <span>{t.nav.login}</span>
+                  <LogIn className="w-3.5 h-3.5 text-[#C6A56B] shrink-0" />
+                  <span className="whitespace-nowrap">{t.nav.login}</span>
                 </Link>
 
                 <Link
                   href="/register"
-                  className="bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] hover:from-[#972F55] hover:to-[#AD3B65] text-white text-xs font-bold px-4 py-2 rounded-full shadow-md shadow-[#AD3B65]/25 hover:shadow-lg transition flex items-center space-x-1.5 whitespace-nowrap shrink-0"
+                  className="bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] hover:from-[#972F55] hover:to-[#AD3B65] text-white text-xs font-bold px-3 xl:px-3.5 py-1.5 rounded-full shadow-xs hover:shadow transition flex items-center space-x-1 whitespace-nowrap shrink-0"
                 >
                   <User className="w-3.5 h-3.5 text-[#C6A56B] shrink-0" />
                   <span className="whitespace-nowrap">{t.nav.register}</span>
