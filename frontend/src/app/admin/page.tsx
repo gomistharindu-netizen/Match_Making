@@ -5,33 +5,24 @@ import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
 import {
   Heart,
-  Shield,
   ShieldCheck,
   Users,
   Sparkles,
   Receipt,
-  Settings,
   CreditCard,
   LogOut,
   ExternalLink,
   Search,
   CheckCircle,
-  XCircle,
-  Clock,
   AlertTriangle,
   FileText,
   Upload,
-  Download,
   Eye,
   RefreshCw,
-  Phone,
   Mail,
-  MapPin,
   Lock,
-  ChevronRight,
   TrendingUp,
   Sliders,
-  Calendar,
   Check,
   X
 } from 'lucide-react';
@@ -55,8 +46,8 @@ interface AdminStats {
     total_users: number;
     total_members: number;
   };
-  recent_profiles?: any[];
-  recent_horoscopes?: any[];
+  recent_profiles?: MemberProfileItem[];
+  recent_horoscopes?: HoroscopeOrderItem[];
 }
 
 interface MemberProfileItem {
@@ -678,6 +669,24 @@ export default function AdminPortalPage() {
               </div>
             </div>
 
+            {/* Refresh Data */}
+            <button
+              onClick={() => {
+                fetchStats();
+                if (activeTab === 'profiles') fetchProfiles();
+                if (activeTab === 'horoscope') fetchHoroscopes();
+                if (activeTab === 'slips') fetchSlips();
+                if (activeTab === 'settings') fetchSettings();
+                if (activeTab === 'users') fetchUsers();
+              }}
+              disabled={loadingStats}
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-200 hover:border-[#C6A56B] bg-white text-xs font-semibold text-stone-600 hover:text-[#AD3B65] transition flex items-center gap-1.5"
+              title="Refresh Data"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loadingStats ? 'animate-spin text-[#AD3B65]' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+
             {/* Back to Site Button */}
             <Link
               href="/"
@@ -716,7 +725,7 @@ export default function AdminPortalPage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
                   isActive
                     ? 'bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white shadow-md shadow-[#AD3B65]/20 border border-[#C6A56B]/40'
