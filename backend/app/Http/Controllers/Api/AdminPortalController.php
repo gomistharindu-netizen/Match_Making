@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminPortalController extends Controller
 {
@@ -232,6 +233,38 @@ class AdminPortalController extends Controller
             'agency_phone',
             'agency_email',
             'agency_bank_details',
+            // Home Hero Media & Content Customization
+            'hero_media_type',
+            'hero_image_url',
+            'hero_slideshow_urls',
+            'hero_video_url',
+            'hero_title_si',
+            'hero_title_en',
+            'hero_subtitle_si',
+            'hero_subtitle_en',
+            'hero_badge_si',
+            'hero_badge_en',
+            // Page Sections Visibility & Content
+            'section_welcome_visible',
+            'section_features_visible',
+            'section_proposals_visible',
+            'section_horoscope_visible',
+            'welcome_badge_si',
+            'welcome_badge_en',
+            'welcome_title_si',
+            'welcome_title_en',
+            'welcome_desc_si',
+            'welcome_desc_en',
+            'proposals_title_si',
+            'proposals_title_en',
+            'proposals_desc_si',
+            'proposals_desc_en',
+            'horoscope_badge_si',
+            'horoscope_badge_en',
+            'horoscope_title_si',
+            'horoscope_title_en',
+            'horoscope_desc_si',
+            'horoscope_desc_en',
         ];
 
         $data = $request->only($allowedKeys);
@@ -243,6 +276,29 @@ class AdminPortalController extends Controller
             'success' => true,
             'message' => 'System settings updated successfully.',
             'settings' => AdminSetting::all(),
+        ]);
+    }
+
+    public function uploadMedia(Request $request): JsonResponse
+    {
+        if ($deny = $this->checkAccess($request)) return $deny;
+
+        $request->validate([
+            'file' => 'required|file|mimes:jpeg,png,jpg,webp,gif,mp4,webm|max:20480',
+        ]);
+
+        $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
+        $filename = 'site_' . time() . '_' . Str::random(8) . '.' . $extension;
+        $path = $file->storeAs('site_media', $filename, 'public');
+
+        $url = asset('storage/' . $path);
+
+        return response()->json([
+            'success' => true,
+            'url' => $url,
+            'path' => $path,
+            'message' => 'Media uploaded successfully.',
         ]);
     }
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\PublicController;
 use Illuminate\Support\Facades\Route;
 
 // Public Endpoints
+Route::get('/settings', [PublicController::class, 'settings']);
 Route::prefix('public')->group(function () {
     Route::get('/settings', [PublicController::class, 'settings']);
     Route::get('/profiles', [PublicController::class, 'profiles']);
@@ -61,6 +62,7 @@ Route::middleware(['auth:sanctum', 'throttle:secure-api'])->group(function () {
         Route::post('/bank-slips/{id}/verify', [AdminPortalController::class, 'verifyBankSlip']);
         Route::get('/settings', [AdminPortalController::class, 'settings']);
         Route::put('/settings', [AdminPortalController::class, 'updateSettings']);
+        Route::post('/media/upload', [AdminPortalController::class, 'uploadMedia']);
         Route::get('/users', [AdminPortalController::class, 'users']);
     });
 });

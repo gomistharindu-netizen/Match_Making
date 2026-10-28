@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
+import { getSafeInternalRedirect } from '../../utils/security';
 import { Heart, Lock, Mail, Eye, EyeOff, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 
 function LoginForm() {
@@ -13,7 +14,8 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const redirect = searchParams.get('redirect') || '/browse';
+  const rawRedirect = searchParams.get('redirect');
+  const redirect = getSafeInternalRedirect(rawRedirect, '/browse');
   const reason = searchParams.get('reason');
 
   const [loginInput, setLoginInput] = useState('');

@@ -27,7 +27,7 @@ interface ProfileModalProps {
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) => {
   const { language, t } = useLanguage();
-  const { sendInterest, unlockContact } = useDemo();
+  const { sendInterest } = useDemo();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -184,19 +184,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
                     {isUnlocked ? t.contactPrivacy.revealedTitle : t.contactPrivacy.heading}
                   </h4>
                 </div>
-
-                {/* Simulation button for demo */}
-                <button
-                  onClick={() => unlockContact(profile.id)}
-                  className={`text-xs px-2.5 py-1 rounded-md font-semibold transition border ${
-                    isUnlocked
-                      ? 'bg-stone-200 text-stone-700 hover:bg-stone-300 border-stone-300'
-                      : 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700 shadow-sm'
-                  }`}
-                  title="Demonstrate owner approval release"
-                >
-                  {isUnlocked ? 'Simulate Re-Lock' : '✨ Simulate Owner Release'}
-                </button>
               </div>
 
               {isUnlocked ? (

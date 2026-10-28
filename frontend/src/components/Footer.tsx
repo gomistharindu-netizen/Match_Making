@@ -4,11 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { Heart, ShieldCheck, Lock, Phone, Mail, MapPin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const pathname = usePathname();
   const { language, t } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
   // Hide public footer on admin portal
   if (pathname?.startsWith('/admin')) {
@@ -72,11 +74,13 @@ export const Footer: React.FC = () => {
                   {t.nav.pricing}
                 </Link>
               </li>
-              <li>
-                <Link href="/activity" className="hover:text-gold-400 transition">
-                  {t.nav.activity}
-                </Link>
-              </li>
+              {isAuthenticated && (
+                <li>
+                  <Link href="/activity" className="hover:text-gold-400 transition">
+                    {t.nav.activity}
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -128,15 +132,13 @@ export const Footer: React.FC = () => {
             <span>Privacy Policy</span>
             <span>Terms of Service</span>
             <span>Owner-Approved Contact Guidelines</span>
-            <a
-              href="http://127.0.0.1:8000/admin"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/admin"
               className="inline-flex items-center text-gold-400 hover:text-gold-300 font-medium transition"
             >
               <Lock className="w-3.5 h-3.5 mr-1" />
               Staff / Admin Portal →
-            </a>
+            </Link>
           </div>
         </div>
       </div>

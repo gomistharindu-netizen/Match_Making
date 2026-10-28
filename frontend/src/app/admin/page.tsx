@@ -25,10 +25,12 @@ import {
   Sliders,
   Check,
   X,
-  Menu
+  Menu,
+  Globe,
 } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+const BACKEND_STORAGE_BASE = API_BASE_URL.replace(/\/api\/?$/, '') + '/storage';
 
 // Types
 interface AdminStats {
@@ -1382,7 +1384,7 @@ export default function AdminPortalPage() {
                             <div className="flex flex-col gap-1">
                               {h.first_party_chart_file ? (
                                 <a
-                                  href={`http://127.0.0.1:8000/storage/${h.first_party_chart_file}`}
+                                  href={`${BACKEND_STORAGE_BASE}/${h.first_party_chart_file}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-[11px] text-[#AD3B65] font-semibold hover:underline flex items-center gap-1"
@@ -1394,7 +1396,7 @@ export default function AdminPortalPage() {
                               )}
                               {h.second_party_chart_file ? (
                                 <a
-                                  href={`http://127.0.0.1:8000/storage/${h.second_party_chart_file}`}
+                                  href={`${BACKEND_STORAGE_BASE}/${h.second_party_chart_file}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-[11px] text-[#C6A56B] font-semibold hover:underline flex items-center gap-1"
@@ -1548,7 +1550,7 @@ export default function AdminPortalPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {slips.map((slip) => {
                   const isVerified = Boolean(slip.verified_at);
-                  const slipUrl = `http://127.0.0.1:8000/storage/${slip.slip_file_path}`;
+                  const slipUrl = `${BACKEND_STORAGE_BASE}/${slip.slip_file_path}`;
 
                   return (
                     <div
@@ -1631,14 +1633,14 @@ export default function AdminPortalPage() {
         )}
 
         {/* ==================================================== */}
-        {/* TAB 5: SYSTEM SETTINGS & PRICING */}
+        {/* TAB: SYSTEM SETTINGS & PRICING */}
         {/* ==================================================== */}
         {activeTab === 'settings' && (
           <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
             <div className="bg-white rounded-3xl p-8 border border-[#C6A56B]/30 shadow-sm space-y-6">
               <div className="border-b border-stone-100 pb-4">
                 <h2 className="text-xl font-bold font-serif text-[#352A30]">පද්ධති සැකසුම් සහ ගාස්තු පාලනය</h2>
-                <p className="text-xs text-stone-400">Configure Free Mode, pricing, contact details, and bank deposit instructions</p>
+                <p className="text-xs text-stone-400">Free Mode, ලියාපදිංචි සහ කේන්ද්‍ර ගාස්තු, සහ බැංකු තැන්පතු උපදෙස් පාලනය කරන්න</p>
               </div>
 
               {settingsSuccess && (
@@ -1732,10 +1734,10 @@ export default function AdminPortalPage() {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white font-bold text-sm shadow-lg shadow-[#AD3B65]/25 border border-[#C6A56B]/40 hover:from-[#BE3F6F] hover:to-[#AD3B65] transition flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white font-bold text-sm shadow-lg shadow-[#AD3B65]/25 border border-[#C6A56B]/40 hover:from-[#BE3F6F] hover:to-[#AD3B65] transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {savingSettings ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 text-[#C6A56B]" />}
-                  සැකසුම් සුරකින්න (Save Settings)
+                  පද්ධති සැකසුම් සුරකින්න (Save Settings)
                 </button>
               </form>
             </div>

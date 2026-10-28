@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
 import { useDemo } from '../../context/DemoContext';
+import { useAuth } from '../../context/AuthContext';
 import { mockRecentlyViewed, mockWhoViewedMe } from '../../data/mockMessages';
 import {
   Eye,
@@ -16,9 +18,66 @@ import { PageHeaderBanner } from '../../components/PageHeaderBanner';
 
 export default function ActivityPage() {
   const { language, t } = useLanguage();
-  const { role, showInViewerLists, setShowInViewerLists } = useDemo();
+  const { showInViewerLists, setShowInViewerLists } = useDemo();
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<'recent' | 'viewed_me'>('recent');
+
+  // Route Guard: Auto redirect unauthenticated visitors to login
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login?redirect=/activity');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-8 h-8 border-2 border-[#AD3B65] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-[#352A30]/60 font-medium">
+            {language === 'si' ? 'සාමාජික තොරතුරු තහවුරු කරමින්...' : 'Checking member access...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center px-4 py-12">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#F8E4EB] shadow-xl text-center space-y-4 max-w-md w-full">
+          <div className="w-16 h-16 bg-[#FFF8FA] text-[#AD3B65] border border-[#F8E4EB] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+            <Lock className="w-8 h-8 text-[#AD3B65]" />
+          </div>
+          <h2 className="text-2xl font-bold font-serif text-[#352A30]">
+            {language === 'si' ? 'සාමාජිකයින්ට පමණි' : 'Registered Members Only'}
+          </h2>
+          <p className="text-xs sm:text-sm text-[#352A30]/75 leading-relaxed font-serif">
+            {language === 'si'
+              ? 'පැතිකඩ නැරඹුම් ඉතිහාසය (Activity History) බැලිය හැක්කේ ලියාපදිංචි වී ගිණුමට ඇතුල් වූ සාමාජිකයින්ට පමණි. කරුණාකර ඔබගේ ගිණුමට ඇතුල් වන්න.'
+              : 'Profile viewer activity history is strictly reserved for registered logged-in members. Please sign in to your account to continue.'}
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/login?redirect=/activity"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white px-6 py-2.5 rounded-2xl text-xs font-bold shadow-md hover:shadow-lg transition cursor-pointer"
+            >
+              <span>{language === 'si' ? 'ඇතුල් වන්න (Sign In)' : 'Sign In'}</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#C6A56B]" />
+            </Link>
+            <Link
+              href="/register"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-[#FFF8FA] text-[#AD3B65] border border-[#F8E4EB] px-6 py-2.5 rounded-2xl text-xs font-bold hover:bg-[#F8E4EB] transition cursor-pointer"
+            >
+              <span>{language === 'si' ? 'ලියාපදිංචි වන්න' : 'Register Free'}</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-16">
@@ -32,31 +91,6 @@ export default function ActivityPage() {
       />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        {role === 'visitor' ? (
-          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#F8E4EB] shadow-sm text-center space-y-4 max-w-2xl mx-auto my-8">
-            <div className="w-16 h-16 bg-[#F8E4EB] text-[#AD3B65] border border-[#AD3B65]/20 rounded-full flex items-center justify-center mx-auto shadow-sm">
-              <Lock className="w-8 h-8 text-[#AD3B65]" />
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#352A30]">
-              {language === 'si' ? 'නැරඹුම් ඉතිහාසය බැලීමට සාමාජිකත්වය අවශ්‍යයි' : 'Registered Member Access Required'}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#352A30]/75 max-w-md mx-auto leading-relaxed font-serif">
-              {language === 'si'
-                ? 'ඔබගේ Profile එක බැලූ අය සහ ඔබ බැලූ අය පිළිබඳ තොරතුරු බැලීමට කරුණාකර Demo Toolbar එකෙන් "Active Member" තෝරන්න.'
-                : 'Viewer activity tracking is reserved for active members. Please switch role to "Active Member" in the Demo Toolbar.'}
-            </p>
-            <div className="pt-2">
-              <Link
-                href="/membership"
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:shadow-md transition"
-              >
-                <span>{language === 'si' ? 'සාමාජිකත්ව විස්තර බලන්න' : 'View Membership Plans'}</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#C6A56B]" />
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <>
 
       {/* Reciprocal Visibility Privacy Setting Card */}
       <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -235,8 +269,6 @@ export default function ActivityPage() {
           )}
         </div>
       )}
-          </>
-        )}
       </div>
     </div>
   );

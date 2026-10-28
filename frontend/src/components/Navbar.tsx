@@ -23,8 +23,12 @@ export const Navbar: React.FC = () => {
     { href: '/browse', label: t.nav.proposals },
     { href: '/horoscope', label: t.nav.horoscope, badge: 'Paid' },
     { href: '/membership', label: t.nav.pricing },
-    { href: '/activity', label: t.nav.activity },
-    { href: '/messages', label: t.nav.messages },
+    ...(isAuthenticated
+      ? [
+          { href: '/activity', label: t.nav.activity },
+          { href: '/messages', label: t.nav.messages },
+        ]
+      : []),
   ];
 
   const isActive = (path: string) => {
