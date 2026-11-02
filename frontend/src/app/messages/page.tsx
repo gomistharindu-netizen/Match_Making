@@ -16,6 +16,11 @@ import {
   ShieldCheck,
   ArrowRight,
   ChevronLeft,
+  Ban,
+  Flag,
+  AlertTriangle,
+  CheckCircle,
+  X,
 } from 'lucide-react';
 import { PageHeaderBanner } from '../../components/PageHeaderBanner';
 
@@ -23,7 +28,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/a
 
 export default function MessagesPage() {
   const { language, t } = useLanguage();
-  const { role } = useDemo();
+  const { role, blockUser, reportUser } = useDemo();
   const { user, isAuthenticated, isLoading, token, login } = useAuth();
   const router = useRouter();
 
@@ -40,6 +45,14 @@ export default function MessagesPage() {
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
   const [isLiveApi, setIsLiveApi] = useState<boolean>(false);
   const [demoLoginLoading, setDemoLoginLoading] = useState<boolean>(false);
+
+  // Block & Report Modals
+  const [showBlockModal, setShowBlockModal] = useState<boolean>(false);
+  const [blockMessage, setBlockMessage] = useState<string>('');
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
+  const [reportReason, setReportReason] = useState<string>('spam');
+  const [reportDescription, setReportDescription] = useState<string>('');
+  const [reportSuccess, setReportSuccess] = useState<boolean>(false);
 
   // Load live conversations from Laravel API if authenticated
   useEffect(() => {
@@ -90,7 +103,7 @@ export default function MessagesPage() {
     fetchConversations();
   }, [isAuthenticated, token]);
 
-  // Load messages for active conversation from Laravel API
+  // Load messages for active conversation with real-time polling (every 4 seconds)
   useEffect(() => {
     if (!isLiveApi || !token || !activeConvId) return;
 
@@ -122,6 +135,8 @@ export default function MessagesPage() {
     };
 
     fetchMessages();
+    const interval = setInterval(fetchMessages, 4000);
+    return () => clearInterval(interval);
   }, [activeConvId, isLiveApi, token]);
 
   const currentConv = conversations.find((c) => c.id === activeConvId);
@@ -219,6 +234,32 @@ export default function MessagesPage() {
         });
       } catch {}
     }
+  };
+
+  const handleBlockMember = async () => {
+    if (!currentConv) return;
+    const res = await blockUser(currentConv.profileCode);
+    setBlockMessage(res.message);
+
+    // Remove blocked conversation from active view
+    setTimeout(() => {
+      setConversations((prev) => prev.filter((c) => c.id !== activeConvId));
+      setShowBlockModal(false);
+      setBlockMessage('');
+      setMobileView('list');
+    }, 1500);
+  };
+
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentConv) return;
+    await reportUser(currentConv.profileCode, reportReason, reportDescription);
+    setReportSuccess(true);
+    setTimeout(() => {
+      setShowReportModal(false);
+      setReportSuccess(false);
+      setReportDescription('');
+    }, 2000);
   };
 
   if (isLoading) {
@@ -419,7 +460,25 @@ export default function MessagesPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-2 shrink-0">
+                      <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setShowBlockModal(true)}
+                          className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                          title={language === 'si' ? 'මෙම සාමාජිකයා Block කරන්න' : 'Block this member'}
+                        >
+                          <Ban className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowReportModal(true)}
+                          className="p-1.5 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition cursor-pointer"
+                          title={language === 'si' ? 'සංවාදය වාර්තා කරන්න' : 'Report conversation'}
+                        >
+                          <Flag className="w-4 h-4" />
+                        </button>
+
                         <button
                           onClick={handleToggleContactRelease}
                           className={`text-[11px] sm:text-xs px-2.5 sm:px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1 sm:space-x-1.5 transition shrink-0 cursor-pointer ${
@@ -547,6 +606,129 @@ export default function MessagesPage() {
               </div>
             </div>
       </div>
+
+      {/* Block Confirmation Modal */}
+      {showBlockModal && currentConv && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-rose-100">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <Ban className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-base font-bold text-stone-900">
+                {language === 'si' ? `${currentConv.profileCode} Block කරනවාද?` : `Block ${currentConv.profileCode}?`}
+              </h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                {language === 'si'
+                  ? 'මෙම සාමාජිකයා Block කළ පසු ඔහුට ඔබ සමඟ පණිවිඩ හුවමාරු කර ගැනීමට හෝ ඔබගේ පැතිකඩ බැලීමට නොහැකි වනු ඇත.'
+                  : 'Once blocked, this member will no longer be able to message you or see your profile.'}
+              </p>
+            </div>
+            {blockMessage ? (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs text-center font-medium">
+                {blockMessage}
+              </div>
+            ) : (
+              <div className="flex items-center justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBlockModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl transition cursor-pointer"
+                >
+                  {language === 'si' ? 'අවලංගුයි' : 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBlockMember}
+                  className="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow transition cursor-pointer"
+                >
+                  {language === 'si' ? 'ඔව්, Block කරන්න' : 'Yes, Block'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Report Modal */}
+      {showReportModal && currentConv && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-amber-100">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center space-x-2 text-amber-600">
+                <AlertTriangle className="w-5 h-5" />
+                <h3 className="text-sm font-bold text-stone-900">
+                  {language === 'si' ? `${currentConv.profileCode} වාර්තා කරන්න` : `Report: ${currentConv.profileCode}`}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowReportModal(false)}
+                className="text-stone-400 hover:text-stone-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {reportSuccess ? (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs text-center font-medium space-y-1">
+                <CheckCircle className="w-6 h-6 text-emerald-600 mx-auto" />
+                <p>{language === 'si' ? 'ඔබගේ වාර්තාව සාර්ථකව භාරගන්නා ලදී.' : 'Your report has been submitted.'}</p>
+                <p className="text-[11px] text-emerald-600">{language === 'si' ? 'ආයතනයේ කාර්ය මණ්ඩලය විමර්ශනය කරනු ඇත.' : 'Agency staff will review this conversation.'}</p>
+              </div>
+            ) : (
+              <form onSubmit={handleReportSubmit} className="space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-stone-700 block mb-1">
+                    {language === 'si' ? 'වාර්තා කිරීමට හේතුව' : 'Reason for report'}
+                  </label>
+                  <select
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    <option value="spam">{language === 'si' ? 'අනවශ්‍ය පණිවිඩ / Spam' : 'Spam messages'}</option>
+                    <option value="harassment">{language === 'si' ? 'නුසුදුසු / හිරිහැරකාරී හැසිරීම' : 'Harassment / Abusive'}</option>
+                    <option value="fake_profile">{language === 'si' ? 'ව්‍යාජ තොරතුරු සහිත පැතිකඩක්' : 'Fake profile / Misleading info'}</option>
+                    <option value="commercial">{language === 'si' ? 'ව්‍යාපාරික කටයුතු ප්‍රවර්ධනය' : 'Commercial solicitation'}</option>
+                    <option value="other">{language === 'si' ? 'වෙනත් හේතුවක්' : 'Other'}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-700 block mb-1">
+                    {language === 'si' ? 'විස්තරය (Description)' : 'Details'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={reportDescription}
+                    onChange={(e) => setReportDescription(e.target.value)}
+                    placeholder={language === 'si' ? 'සිදුවූ දෙය පැහැදිලි කරන්න...' : 'Please describe what happened...'}
+                    className="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-[#AD3B65]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100">
+                  <button
+                    type="button"
+                    onClick={() => setShowReportModal(false)}
+                    className="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl transition cursor-pointer"
+                  >
+                    {language === 'si' ? 'අවලංගුයි' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 text-xs font-bold bg-[#AD3B65] hover:bg-[#972F55] text-white rounded-xl shadow transition cursor-pointer"
+                  >
+                    {language === 'si' ? 'වාර්තාව යවන්න' : 'Submit Report'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

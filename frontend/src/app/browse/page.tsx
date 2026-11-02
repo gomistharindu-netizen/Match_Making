@@ -28,6 +28,9 @@ function BrowseContent() {
     maxAge: 45,
     religion: 'all',
     location: initialLocation,
+    professionCategory: 'all',
+    dietaryHabits: 'all',
+    habitsDrinking: 'all',
     horoscopeOnly: false,
     overseasOnly: false,
   });
@@ -41,6 +44,9 @@ function BrowseContent() {
       maxAge: 45,
       religion: 'all',
       location: 'all',
+      professionCategory: 'all',
+      dietaryHabits: 'all',
+      habitsDrinking: 'all',
       horoscopeOnly: false,
       overseasOnly: false,
     });
@@ -72,6 +78,18 @@ function BrowseContent() {
       // Overseas filter
       if (filters.overseasOnly && !p.isOverseas) {
         return false;
+      }
+      // Profession Category filter
+      if (filters.professionCategory && filters.professionCategory !== 'all') {
+        const occ = (p.occupation || '').toLowerCase();
+        const cat = filters.professionCategory.toLowerCase();
+        if (cat === 'medical' && !occ.match(/doctor|medical|surgeon|dental|physician|nurse/)) return false;
+        if (cat === 'engineering' && !occ.match(/engineer|architect|civil|mechanical|electrical/)) return false;
+        if (cat === 'software_it' && !occ.match(/software|it|developer|programmer|tech|data|lead/)) return false;
+        if (cat === 'government' && !occ.match(/executive|government|officer|assistant|state|public/)) return false;
+        if (cat === 'legal_banking' && !occ.match(/bank|finance|account|lawyer|attorney|audit/)) return false;
+        if (cat === 'business' && !occ.match(/business|entrepreneur|director|owner|manager/)) return false;
+        if (cat === 'academic' && !occ.match(/teacher|lecturer|professor|academic|instructor/)) return false;
       }
       return true;
     });

@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useDemo } from '../context/DemoContext';
 import { Heart, Menu, X, User, Globe, LogIn, LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { language, toggleLanguage, t } = useLanguage();
   const { user, profile, isAuthenticated, logout } = useAuth();
+  const { badgeCounts } = useDemo();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -25,8 +27,16 @@ export const Navbar: React.FC = () => {
     { href: '/membership', label: t.nav.pricing },
     ...(isAuthenticated
       ? [
-          { href: '/activity', label: t.nav.activity },
-          { href: '/messages', label: t.nav.messages },
+          {
+            href: '/activity',
+            label: t.nav.activity,
+            countBadge: badgeCounts.pending_interests > 0 ? badgeCounts.pending_interests : undefined,
+          },
+          {
+            href: '/messages',
+            label: t.nav.messages,
+            countBadge: badgeCounts.unread_messages > 0 ? badgeCounts.unread_messages : undefined,
+          },
         ]
       : []),
   ];
@@ -74,6 +84,11 @@ export const Navbar: React.FC = () => {
                     }`}
                   >
                     <span className="whitespace-nowrap">{link.label}</span>
+                    {link.countBadge !== undefined && (
+                      <span className="ml-1.5 text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-rose-600 text-white shrink-0 shadow-sm animate-pulse">
+                        {link.countBadge}
+                      </span>
+                    )}
                     {link.badge && (
                       <span className={`ml-1 text-[9px] px-1.5 py-0.2 rounded-full font-extrabold uppercase shrink-0 ${
                         active ? 'bg-[#C6A56B] text-stone-900' : 'bg-[#C6A56B]/20 text-[#8E2E52]'
@@ -177,7 +192,14 @@ export const Navbar: React.FC = () => {
                     : 'text-[#352A30] hover:bg-[#FFF8FA]'
                 }`}
               >
-                {link.label}
+                <div className="flex items-center justify-between">
+                  <span>{link.label}</span>
+                  {link.countBadge !== undefined && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-600 text-white animate-pulse">
+                      {link.countBadge}
+                    </span>
+                  )}
+                </div>
               </Link>
             ))}
 

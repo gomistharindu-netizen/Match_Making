@@ -22,6 +22,14 @@ class BankSlip extends Model
         'notes',
     ];
 
+    protected $appends = ['secure_slip_url'];
+
+    public function getSecureSlipUrlAttribute(): ?string
+    {
+        if (!$this->slip_file_path) return null;
+        return app(\App\Services\StorageService::class)->getExpiringUrl($this->slip_file_path, 30);
+    }
+
     protected function casts(): array
     {
         return [

@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
 use App\Models\MemberProfile;
 use App\Models\Membership;
+use App\Models\PhoneVerification;
 use App\Models\ProfilePhoto;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -238,5 +241,172 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    /**
+     * Request password reset token / code
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            // Return success even if not found to prevent user enumeration attacks
+            return response()->json([
+                'message' => 'If this email is registered, a password reset code has been sent.',
+            ]);
+        }
+
+        // Generate 6-digit verification code or token
+        $code = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'token' => Hash::make($code),
+                'created_at' => now(),
+            ]
+        );
+
+        Log::info("Password reset code generated for {$user->email}: {$code}");
+
+        return response()->json([
+            'message' => 'A 6-digit password reset code has been sent to your email address.',
+            'demo_code' => app()->environment('local') ? $code : null, // Display in local dev mode
+        ]);
+    }
+
+    /**
+     * Reset password using code
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record) {
+            return response()->json(['message' => 'Invalid or expired password reset request.'], 422);
+        }
+
+        // Check if token expired (over 30 minutes)
+        if (Carbon::parse($record->created_at)->addMinutes(30)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return response()->json(['message' => 'Reset code has expired. Please request a new one.'], 422);
+        }
+
+        // Verify code
+        if (!Hash::check($request->code, $record->token)) {
+            return response()->json(['message' => 'Incorrect verification code. Please check and try again.'], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        // Update password and revoke existing API tokens for security
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+        $user->tokens()->delete();
+
+        // Delete reset token
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json([
+            'message' => 'Password reset successfully! You can now log in with your new password.',
+        ]);
+    }
+
+    /**
+     * Send Phone SMS OTP code for verification
+     */
+    public function sendOtp(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'phone' => 'required|string|max:50',
+        ]);
+
+        $phone = preg_replace('/[^0-9]/', '', $validated['phone']);
+        if (strlen($phone) < 9) {
+            return response()->json(['message' => 'Invalid phone number format.'], 422);
+        }
+
+        // Generate 6-digit OTP code
+        $otp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Expire older unverified attempts
+        PhoneVerification::where('phone_number', $phone)->delete();
+
+        PhoneVerification::create([
+            'phone_number' => $phone,
+            'otp_code' => $otp,
+            'attempts' => 0,
+            'expires_at' => now()->addMinutes(5),
+        ]);
+
+        // Send SMS via NotificationService
+        $notificationService = app(\App\Services\NotificationService::class);
+        $notificationService->notifyOtpCode($phone, $otp);
+
+        return response()->json([
+            'message' => 'A 6-digit verification code has been sent via SMS to your phone.',
+            'phone' => $phone,
+            'expires_in_seconds' => 300,
+            'demo_otp' => app()->environment('local') ? $otp : null,
+        ]);
+    }
+
+    /**
+     * Verify Phone SMS OTP code
+     */
+    public function verifyOtp(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'phone' => 'required|string',
+            'code' => 'required|string|size:6',
+        ]);
+
+        $phone = preg_replace('/[^0-9]/', '', $validated['phone']);
+
+        $record = PhoneVerification::where('phone_number', $phone)
+            ->latest()
+            ->first();
+
+        if (!$record) {
+            return response()->json(['message' => 'No OTP request found for this phone number.'], 422);
+        }
+
+        if ($record->isExpired()) {
+            return response()->json(['message' => 'Verification code has expired. Please request a new one.'], 422);
+        }
+
+        if ($record->otp_code !== $validated['code']) {
+            $record->increment('attempts');
+            return response()->json(['message' => 'Incorrect verification code. Please check and try again.'], 422);
+        }
+
+        $record->update(['verified_at' => now()]);
+
+        // If user already exists with this phone number, update their phone_verified_at
+        User::where('phone', $validated['phone'])->orWhere('phone', $phone)->update([
+            'phone_verified_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Phone number verified successfully!',
+            'verified' => true,
+        ]);
     }
 }

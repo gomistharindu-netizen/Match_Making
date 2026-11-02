@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { RotateCcw, Filter, Sparkles, Globe } from 'lucide-react';
+import { RotateCcw, Filter, Sparkles, Globe, SlidersHorizontal, ChevronDown, ChevronUp, Briefcase } from 'lucide-react';
 
 export interface FilterState {
   gender: 'all' | 'groom' | 'bride';
@@ -10,6 +10,9 @@ export interface FilterState {
   maxAge: number;
   religion: string;
   location: string;
+  professionCategory: string;
+  dietaryHabits: string;
+  habitsDrinking: string;
   horoscopeOnly: boolean;
   overseasOnly: boolean;
 }
@@ -26,6 +29,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   onReset,
 }) => {
   const { language, t } = useLanguage();
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#F8E4EB] space-y-4">
@@ -36,13 +40,24 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             {t.profiles.filters}
           </h3>
         </div>
-        <button
-          onClick={onReset}
-          className="text-xs text-[#352A30]/60 hover:text-[#AD3B65] flex items-center space-x-1 transition font-medium"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>{t.profiles.clearFilters}</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="text-xs text-[#AD3B65] hover:underline flex items-center space-x-1 font-bold cursor-pointer"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>{showAdvanced ? (language === 'si' ? 'අඩු පෙරහන්' : 'Fewer Filters') : (language === 'si' ? 'වැඩිදුර පෙරහන් (Advanced)' : 'Advanced Filters')}</span>
+            {showAdvanced ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            onClick={onReset}
+            className="text-xs text-[#352A30]/60 hover:text-[#AD3B65] flex items-center space-x-1 transition font-medium cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{t.profiles.clearFilters}</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
@@ -165,6 +180,64 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           </label>
         </div>
       </div>
+
+      {/* Advanced Filters Expandable Drawer */}
+      {showAdvanced && (
+        <div className="pt-3 border-t border-[#F8E4EB] grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs animate-fadeIn">
+          {/* Profession Category */}
+          <div>
+            <label className="block text-stone-500 font-semibold mb-1">
+              {language === 'si' ? 'රැකියා ක්ෂේත්‍රය (Profession Field)' : 'Profession Category'}
+            </label>
+            <select
+              value={filters.professionCategory}
+              onChange={(e) => setFilters((prev) => ({ ...prev, professionCategory: e.target.value }))}
+              className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-800 font-medium focus:outline-none focus:border-[#AD3B65]"
+            >
+              <option value="all">{language === 'si' ? 'සියලුම ක්ෂේත්‍ර (All Professions)' : 'All Fields'}</option>
+              <option value="medical">Medical / Doctors / Healthcare (වෛද්‍ය/සෞඛ්‍ය)</option>
+              <option value="engineering">Engineering / Architects (ඉංජිනේරු)</option>
+              <option value="software_it">Software / IT / Tech (මෘදුකාංග/තොරතුරු තාක්ෂණ)</option>
+              <option value="government">Government & Executive (රාජ්‍ය/විධායක)</option>
+              <option value="legal_banking">Banking, Finance & Legal (බැංකු/නීති)</option>
+              <option value="business">Business & Entrepreneurs (ව්‍යාපාරික)</option>
+              <option value="academic">Teachers & Academics (අධ්‍යාපන/ආචාර්ය)</option>
+            </select>
+          </div>
+
+          {/* Dietary Habits */}
+          <div>
+            <label className="block text-stone-500 font-semibold mb-1">
+              {language === 'si' ? 'ආහාර රටාව (Dietary Habits)' : 'Dietary Habits'}
+            </label>
+            <select
+              value={filters.dietaryHabits}
+              onChange={(e) => setFilters((prev) => ({ ...prev, dietaryHabits: e.target.value }))}
+              className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-800 font-medium focus:outline-none focus:border-[#AD3B65]"
+            >
+              <option value="all">{language === 'si' ? 'ඕනෑම (Any Diet)' : 'Any Diet'}</option>
+              <option value="vegetarian">Vegetarian only (නිර්මාංශ පමණක්)</option>
+              <option value="non_vegetarian">Non-Vegetarian (සාමාන්‍ය ආහාර)</option>
+            </select>
+          </div>
+
+          {/* Alcohol & Habits */}
+          <div>
+            <label className="block text-stone-500 font-semibold mb-1">
+              {language === 'si' ? 'මත්පැන් භාවිතය (Drinking Habits)' : 'Drinking Habits'}
+            </label>
+            <select
+              value={filters.habitsDrinking}
+              onChange={(e) => setFilters((prev) => ({ ...prev, habitsDrinking: e.target.value }))}
+              className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-800 font-medium focus:outline-none focus:border-[#AD3B65]"
+            >
+              <option value="all">{language === 'si' ? 'ඕනෑම (Any)' : 'Any'}</option>
+              <option value="teetotaler">Teetotaler / Non-drinker (භාවිතයෙන් තොරයි)</option>
+              <option value="social">Social Drinker (ඉඳහිට)</option>
+            </select>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -18,9 +18,13 @@ import {
   Copy,
   Check,
   ArrowRight,
-  Mail
+  Mail,
+  RotateCcw,
+  CheckCircle2,
+  Heart,
 } from 'lucide-react';
 import { PageHeaderBanner } from '../../components/PageHeaderBanner';
+import { NAKATHAS, RASHIS, calculatePorondam, PorondamResult } from '../../utils/porondam';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -39,8 +43,17 @@ export default function HoroscopePage() {
   const { language } = useLanguage();
   const { horoscopeFee } = useDemo();
 
-  // Main Page Tab: 'order' or 'track'
-  const [currentTab, setCurrentTab] = useState<'order' | 'track'>('order');
+  // Main Page Tab: 'order' or 'track' or 'calculator'
+  const [currentTab, setCurrentTab] = useState<'order' | 'track' | 'calculator'>('order');
+
+  // Interactive Porondam Calculator state
+  const [calcBrideNakatha, setCalcBrideNakatha] = useState<number>(4);
+  const [calcBrideRashi, setCalcBrideRashi] = useState<number>(2);
+  const [calcGroomNakatha, setCalcGroomNakatha] = useState<number>(13);
+  const [calcGroomRashi, setCalcGroomRashi] = useState<number>(6);
+  const [calcResult, setCalcResult] = useState<PorondamResult | null>(() => {
+    return calculatePorondam(4, 13, 2, 6);
+  });
 
   // Multi-step order state
   const [activeStep, setActiveStep] = useState<number>(1);
@@ -273,6 +286,18 @@ export default function HoroscopePage() {
             >
               <Search className="w-3.5 h-3.5 text-[#C6A56B]" />
               <span>{language === 'si' ? 'ඇණවුමේ තත්ත්වය සොයන්න (Track Order)' : 'Track Order Status'}</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('calculator')}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+                currentTab === 'calculator'
+                  ? 'bg-[#AD3B65] text-white shadow-md shadow-[#AD3B65]/20'
+                  : 'text-[#352A30]/75 hover:bg-[#FFF8FA] hover:text-[#AD3B65]'
+              }`}
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-[#C6A56B]" />
+              <span>{language === 'si' ? 'ක්ෂණික පොරොන්දම් ගැලපීම' : 'Instant Porondam Calculator'}</span>
             </button>
           </div>
         </div>
@@ -943,6 +968,244 @@ export default function HoroscopePage() {
         )}
 
         {/* ============================================================ */}
+        {/* TAB 3: INSTANT PORONDAM CALCULATOR                          */}
+        {/* ============================================================ */}
+        {currentTab === 'calculator' && (
+          <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-[#F8E4EB] shadow-md shadow-[#AD3B65]/5 space-y-8 animate-fadeIn">
+            <div className="text-center max-w-xl mx-auto space-y-2">
+              <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#FFF8FA] text-[#AD3B65] border border-[#F8E4EB] text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
+                <span>{language === 'si' ? 'නොමිලේ පරීක්ෂාව' : 'Free Compatibility Check'}</span>
+              </div>
+              <h2 className="text-2xl font-bold font-serif text-[#352A30]">
+                {language === 'si' ? 'ක්ෂණික විසි පොරොන්දම් ගැලපීම' : 'Instant Porondam Matching Engine'}
+              </h2>
+              <p className="text-xs text-[#352A30]/70">
+                {language === 'si'
+                  ? 'දෙදෙනාගේ උපන් නැකත් සහ චන්ද්‍ර රාශි තෝරා මූලික පොරොන්දම් ගැලපීම (%) ක්ෂණිකව බලාගන්න.'
+                  : 'Select birth Nakathas and Moon Signs (Rashis) to preview instant matrimonial compatibility.'}
+              </p>
+            </div>
+
+            {/* Selection Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Bride Input */}
+              <div className="bg-[#FFF8FA] p-5 rounded-2xl border border-[#F8E4EB] space-y-3">
+                <div className="flex items-center space-x-2 text-xs font-bold text-[#AD3B65]">
+                  <Heart className="w-4 h-4 fill-current" />
+                  <span>{language === 'si' ? 'මනාලියගේ තොරතුරු (Bride)' : "Bride's Horoscope"}</span>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'උපන් නැකත (Birth Nakatha)' : 'Birth Nakatha'}
+                  </label>
+                  <select
+                    value={calcBrideNakatha}
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      setCalcBrideNakatha(id);
+                      const nak = NAKATHAS.find((n) => n.id === id);
+                      if (nak) setCalcBrideRashi(nak.default_rashi);
+                    }}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {NAKATHAS.map((n) => (
+                      <option key={`c-b-${n.id}`} value={n.id}>
+                        {n.id}. {n.name_si} ({n.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'චන්ද්‍ර රාශිය (Moon Sign)' : 'Moon Sign (Rashi)'}
+                  </label>
+                  <select
+                    value={calcBrideRashi}
+                    onChange={(e) => setCalcBrideRashi(Number(e.target.value))}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {RASHIS.map((r) => (
+                      <option key={`c-br-${r.id}`} value={r.id}>
+                        {r.id}. {r.name_si} ({r.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Groom Input */}
+              <div className="bg-[#FFF8FA] p-5 rounded-2xl border border-[#F8E4EB] space-y-3">
+                <div className="flex items-center space-x-2 text-xs font-bold text-blue-800">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>{language === 'si' ? 'මනාලයාගේ තොරතුරු (Groom)' : "Groom's Horoscope"}</span>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'උපන් නැකත (Birth Nakatha)' : 'Birth Nakatha'}
+                  </label>
+                  <select
+                    value={calcGroomNakatha}
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      setCalcGroomNakatha(id);
+                      const nak = NAKATHAS.find((n) => n.id === id);
+                      if (nak) setCalcGroomRashi(nak.default_rashi);
+                    }}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {NAKATHAS.map((n) => (
+                      <option key={`c-g-${n.id}`} value={n.id}>
+                        {n.id}. {n.name_si} ({n.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'චන්ද්‍ර රාශිය (Moon Sign)' : 'Moon Sign (Rashi)'}
+                  </label>
+                  <select
+                    value={calcGroomRashi}
+                    onChange={(e) => setCalcGroomRashi(Number(e.target.value))}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {RASHIS.map((r) => (
+                      <option key={`c-gr-${r.id}`} value={r.id}>
+                        {r.id}. {r.name_si} ({r.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  const res = calculatePorondam(calcBrideNakatha, calcGroomNakatha, calcBrideRashi, calcGroomRashi);
+                  setCalcResult(res);
+                }}
+                className="px-8 py-3 rounded-2xl bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white font-bold text-xs shadow-md shadow-[#AD3B65]/30 hover:shadow-lg transition cursor-pointer"
+              >
+                {language === 'si' ? 'පොරොන්දම් ගලපන්න (Calculate Match)' : 'Calculate Compatibility'}
+              </button>
+            </div>
+
+            {/* Results Display */}
+            {calcResult && (
+              <div className="space-y-6 pt-4 border-t border-[#F8E4EB]">
+                <div className={`p-6 rounded-3xl border text-center space-y-3 ${
+                  calcResult.percentage >= 75 && calcResult.rajju_passed
+                    ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200'
+                    : calcResult.rajju_passed
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+                    : 'bg-gradient-to-r from-rose-50 to-red-50 border-rose-200'
+                }`}>
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="text-5xl font-black font-serif text-[#352A30]">
+                      {calcResult.percentage}%
+                    </div>
+                    <div className="text-left">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                        calcResult.percentage >= 75 && calcResult.rajju_passed
+                          ? 'bg-emerald-600 text-white'
+                          : calcResult.rajju_passed
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-rose-600 text-white'
+                      }`}>
+                        {calcResult.grade}
+                      </span>
+                      <p className="text-xs font-bold text-stone-700 mt-1">
+                        {calcResult.score} / {calcResult.max_score} {language === 'si' ? 'ලකුණු' : 'Points'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm font-bold text-stone-800 max-w-md mx-auto">
+                    {language === 'si' ? calcResult.verdict_si : calcResult.verdict_en}
+                  </p>
+
+                  <div className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold ${
+                    calcResult.rajju_passed
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-rose-100 text-rose-800'
+                  }`}>
+                    {calcResult.rajju_passed ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span>{language === 'si' ? 'රජ්ජු දෝෂ රහිතයි (No Rajju Dosha)' : 'No Rajju Dosha (Safe)'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-rose-600" />
+                        <span>{language === 'si' ? 'රජ්ජු දෝෂයක් පවතී (Rajju Warning)' : 'Rajju Dosha Warning'}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* 10 Items Breakdown */}
+                <div className="space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                    {language === 'si' ? 'පොරොන්දම් 10 සවිස්තර ලකුණු' : '10 Porondam Breakdown'}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {calcResult.details.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white p-3.5 rounded-2xl border border-[#F8E4EB] flex items-start justify-between space-x-2 text-xs shadow-xs"
+                      >
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="font-bold text-[#352A30] block truncate">
+                            {language === 'si' ? item.name_si : `${item.name_en} Porondam`}
+                          </span>
+                          <p className="text-[11px] text-stone-500">
+                            {language === 'si' ? item.description_si : item.description_en}
+                          </p>
+                        </div>
+                        <span className={`font-mono font-bold text-xs px-2.5 py-1 rounded-lg shrink-0 ${
+                          item.score === item.max_score
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : item.score > 0
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-rose-100 text-rose-800'
+                        }`}>
+                          {item.score}/{item.max_score}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Switch to Full Horoscope Order CTA */}
+                <div className="p-5 rounded-3xl bg-[#FFF8FA] border border-[#F8E4EB] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="space-y-1 text-center sm:text-left">
+                    <h4 className="text-xs font-bold text-[#AD3B65] uppercase tracking-wider">
+                      {language === 'si' ? 'පූර්ණ ජ්‍යෝතිෂ වාර්තාවක් අවශ්‍යද?' : 'Need Complete Astrological Verification?'}
+                    </h4>
+                    <p className="text-xs text-[#352A30]/75">
+                      {language === 'si'
+                        ? 'අපගේ ප්‍රවීණ ජ්‍යෝතිෂවේදීන් විසින් විසි පොරොන්දම හා භාව කේන්ද්‍ර සම්පූර්ණයෙන් පරීක්ෂා කර සකසන නිල PDF වාර්තාවක් ලබාගන්න.'
+                        : 'Order a full human-reviewed report from our certified astrologers.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentTab('order')}
+                    className="px-5 py-2.5 rounded-xl bg-[#AD3B65] hover:bg-[#8E2E52] text-white font-bold text-xs shrink-0 transition shadow-md shadow-[#AD3B65]/20 flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <span>{language === 'si' ? 'කේන්ද්‍ර වාර්තාවක් ඇනවුම් කරන්න' : 'Order Full Report'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#C6A56B]" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================ */}
         {/* TAB 2: TRACK ORDER STATUS                                    */}
         {/* ============================================================ */}
         {currentTab === 'track' && (
@@ -1071,6 +1334,244 @@ export default function HoroscopePage() {
                     </span>
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* TAB 3: INSTANT PORONDAM CALCULATOR                          */}
+        {/* ============================================================ */}
+        {currentTab === 'calculator' && (
+          <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-[#F8E4EB] shadow-md shadow-[#AD3B65]/5 space-y-8 animate-fadeIn">
+            <div className="text-center max-w-xl mx-auto space-y-2">
+              <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#FFF8FA] text-[#AD3B65] border border-[#F8E4EB] text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-[#C6A56B]" />
+                <span>{language === 'si' ? 'නොමිලේ පරීක්ෂාව' : 'Free Compatibility Check'}</span>
+              </div>
+              <h2 className="text-2xl font-bold font-serif text-[#352A30]">
+                {language === 'si' ? 'ක්ෂණික විසි පොරොන්දම් ගැලපීම' : 'Instant Porondam Matching Engine'}
+              </h2>
+              <p className="text-xs text-[#352A30]/70">
+                {language === 'si'
+                  ? 'දෙදෙනාගේ උපන් නැකත් සහ චන්ද්‍ර රාශි තෝරා මූලික පොරොන්දම් ගැලපීම (%) ක්ෂණිකව බලාගන්න.'
+                  : 'Select birth Nakathas and Moon Signs (Rashis) to preview instant matrimonial compatibility.'}
+              </p>
+            </div>
+
+            {/* Selection Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Bride Input */}
+              <div className="bg-[#FFF8FA] p-5 rounded-2xl border border-[#F8E4EB] space-y-3">
+                <div className="flex items-center space-x-2 text-xs font-bold text-[#AD3B65]">
+                  <Heart className="w-4 h-4 fill-current" />
+                  <span>{language === 'si' ? 'මනාලියගේ තොරතුරු (Bride)' : "Bride's Horoscope"}</span>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'උපන් නැකත (Birth Nakatha)' : 'Birth Nakatha'}
+                  </label>
+                  <select
+                    value={calcBrideNakatha}
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      setCalcBrideNakatha(id);
+                      const nak = NAKATHAS.find((n) => n.id === id);
+                      if (nak) setCalcBrideRashi(nak.default_rashi);
+                    }}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {NAKATHAS.map((n) => (
+                      <option key={`c-b-${n.id}`} value={n.id}>
+                        {n.id}. {n.name_si} ({n.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'චන්ද්‍ර රාශිය (Moon Sign)' : 'Moon Sign (Rashi)'}
+                  </label>
+                  <select
+                    value={calcBrideRashi}
+                    onChange={(e) => setCalcBrideRashi(Number(e.target.value))}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {RASHIS.map((r) => (
+                      <option key={`c-br-${r.id}`} value={r.id}>
+                        {r.id}. {r.name_si} ({r.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Groom Input */}
+              <div className="bg-[#FFF8FA] p-5 rounded-2xl border border-[#F8E4EB] space-y-3">
+                <div className="flex items-center space-x-2 text-xs font-bold text-blue-800">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>{language === 'si' ? 'මනාලයාගේ තොරතුරු (Groom)' : "Groom's Horoscope"}</span>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'උපන් නැකත (Birth Nakatha)' : 'Birth Nakatha'}
+                  </label>
+                  <select
+                    value={calcGroomNakatha}
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      setCalcGroomNakatha(id);
+                      const nak = NAKATHAS.find((n) => n.id === id);
+                      if (nak) setCalcGroomRashi(nak.default_rashi);
+                    }}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {NAKATHAS.map((n) => (
+                      <option key={`c-g-${n.id}`} value={n.id}>
+                        {n.id}. {n.name_si} ({n.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[#352A30] block mb-1">
+                    {language === 'si' ? 'චන්ද්‍ර රාශිය (Moon Sign)' : 'Moon Sign (Rashi)'}
+                  </label>
+                  <select
+                    value={calcGroomRashi}
+                    onChange={(e) => setCalcGroomRashi(Number(e.target.value))}
+                    className="w-full text-xs p-2.5 rounded-xl border border-[#F8E4EB] bg-white text-[#352A30] font-medium focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    {RASHIS.map((r) => (
+                      <option key={`c-gr-${r.id}`} value={r.id}>
+                        {r.id}. {r.name_si} ({r.name_en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  const res = calculatePorondam(calcBrideNakatha, calcGroomNakatha, calcBrideRashi, calcGroomRashi);
+                  setCalcResult(res);
+                }}
+                className="px-8 py-3 rounded-2xl bg-gradient-to-r from-[#AD3B65] to-[#8E2E52] text-white font-bold text-xs shadow-md shadow-[#AD3B65]/30 hover:shadow-lg transition cursor-pointer"
+              >
+                {language === 'si' ? 'පොරොන්දම් ගලපන්න (Calculate Match)' : 'Calculate Compatibility'}
+              </button>
+            </div>
+
+            {/* Results Display */}
+            {calcResult && (
+              <div className="space-y-6 pt-4 border-t border-[#F8E4EB]">
+                <div className={`p-6 rounded-3xl border text-center space-y-3 ${
+                  calcResult.percentage >= 75 && calcResult.rajju_passed
+                    ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200'
+                    : calcResult.rajju_passed
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+                    : 'bg-gradient-to-r from-rose-50 to-red-50 border-rose-200'
+                }`}>
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="text-5xl font-black font-serif text-[#352A30]">
+                      {calcResult.percentage}%
+                    </div>
+                    <div className="text-left">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                        calcResult.percentage >= 75 && calcResult.rajju_passed
+                          ? 'bg-emerald-600 text-white'
+                          : calcResult.rajju_passed
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-rose-600 text-white'
+                      }`}>
+                        {calcResult.grade}
+                      </span>
+                      <p className="text-xs font-bold text-stone-700 mt-1">
+                        {calcResult.score} / {calcResult.max_score} {language === 'si' ? 'ලකුණු' : 'Points'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm font-bold text-stone-800 max-w-md mx-auto">
+                    {language === 'si' ? calcResult.verdict_si : calcResult.verdict_en}
+                  </p>
+
+                  <div className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold ${
+                    calcResult.rajju_passed
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-rose-100 text-rose-800'
+                  }`}>
+                    {calcResult.rajju_passed ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span>{language === 'si' ? 'රජ්ජු දෝෂ රහිතයි (No Rajju Dosha)' : 'No Rajju Dosha (Safe)'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-rose-600" />
+                        <span>{language === 'si' ? 'රජ්ජු දෝෂයක් පවතී (Rajju Warning)' : 'Rajju Dosha Warning'}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* 10 Items Breakdown */}
+                <div className="space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                    {language === 'si' ? 'පොරොන්දම් 10 සවිස්තර ලකුණු' : '10 Porondam Breakdown'}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {calcResult.details.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white p-3.5 rounded-2xl border border-[#F8E4EB] flex items-start justify-between space-x-2 text-xs shadow-xs"
+                      >
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="font-bold text-[#352A30] block truncate">
+                            {language === 'si' ? item.name_si : `${item.name_en} Porondam`}
+                          </span>
+                          <p className="text-[11px] text-stone-500">
+                            {language === 'si' ? item.description_si : item.description_en}
+                          </p>
+                        </div>
+                        <span className={`font-mono font-bold text-xs px-2.5 py-1 rounded-lg shrink-0 ${
+                          item.score === item.max_score
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : item.score > 0
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-rose-100 text-rose-800'
+                        }`}>
+                          {item.score}/{item.max_score}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Switch to Full Horoscope Order CTA */}
+                <div className="p-5 rounded-3xl bg-[#FFF8FA] border border-[#F8E4EB] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="space-y-1 text-center sm:text-left">
+                    <h4 className="text-xs font-bold text-[#AD3B65] uppercase tracking-wider">
+                      {language === 'si' ? 'පූර්ණ ජ්‍යෝතිෂ වාර්තාවක් අවශ්‍යද?' : 'Need Complete Astrological Verification?'}
+                    </h4>
+                    <p className="text-xs text-[#352A30]/75">
+                      {language === 'si'
+                        ? 'අපගේ ප්‍රවීණ ජ්‍යෝතිෂවේදීන් විසින් විසි පොරොන්දම හා භාව කේන්ද්‍ර සම්පූර්ණයෙන් පරීක්ෂා කර සකසන නිල PDF වාර්තාවක් ලබාගන්න.'
+                        : 'Order a full human-reviewed report from our certified astrologers.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentTab('order')}
+                    className="px-5 py-2.5 rounded-xl bg-[#AD3B65] hover:bg-[#8E2E52] text-white font-bold text-xs shrink-0 transition shadow-md shadow-[#AD3B65]/20 flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <span>{language === 'si' ? 'කේන්ද්‍ර වාර්තාවක් ඇනවුම් කරන්න' : 'Order Full Report'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#C6A56B]" />
+                  </button>
+                </div>
               </div>
             )}
           </div>

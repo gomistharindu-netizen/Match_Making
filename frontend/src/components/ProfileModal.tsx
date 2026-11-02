@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MatrimonialProfile } from '../data/mockProfiles';
 import { useLanguage } from '../context/LanguageContext';
@@ -18,7 +18,13 @@ import {
   Sparkles,
   Heart,
   CheckCircle,
+  Flag,
+  Ban,
+  AlertTriangle,
+  Printer,
 } from 'lucide-react';
+import { BioDataModal } from './BioDataModal';
+import { PorondamCalculatorModal } from './PorondamCalculatorModal';
 
 interface ProfileModalProps {
   profile: MatrimonialProfile | null;
@@ -27,12 +33,25 @@ interface ProfileModalProps {
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) => {
   const { language, t } = useLanguage();
-  const { sendInterest } = useDemo();
+  const { sendInterest, isShortlisted, toggleShortlist, blockUser, reportUser, requestPhotoAccess, isPhotoRequested } = useDemo();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
+  const [photoRequested, setPhotoRequested] = useState<boolean>(false);
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
+  const [reportReason, setReportReason] = useState<string>('spam');
+  const [reportDescription, setReportDescription] = useState<string>('');
+  const [reportSubmitted, setReportSubmitted] = useState<boolean>(false);
+
+  const [showBlockModal, setShowBlockModal] = useState<boolean>(false);
+  const [blockMessage, setBlockMessage] = useState<string>('');
+
+  const [showBioDataModal, setShowBioDataModal] = useState<boolean>(false);
+  const [showPorondamModal, setShowPorondamModal] = useState<boolean>(false);
+
   if (!profile) return null;
 
+  const isFav = isShortlisted(profile.code);
   const isPending = profile.interestStatus === 'pending';
   const isAccepted = profile.interestStatus === 'accepted';
 
@@ -42,6 +61,26 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
       return;
     }
     sendInterest(profile.id);
+  };
+
+  const handleBlock = async () => {
+    const res = await blockUser(profile.code);
+    setBlockMessage(res.message);
+    setTimeout(() => {
+      setShowBlockModal(false);
+      onClose();
+    }, 1500);
+  };
+
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await reportUser(profile.code, reportReason, reportDescription);
+    setReportSubmitted(true);
+    setTimeout(() => {
+      setShowReportModal(false);
+      setReportSubmitted(false);
+      setReportDescription('');
+    }, 2000);
   };
   const isUnlocked = profile.contactReleased;
 
@@ -58,12 +97,31 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
               {profile.gender === 'bride' ? t.hero.bride : t.hero.groom} • {profile.age} Yrs • {profile.location}
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/20 text-stone-300 hover:text-white transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => toggleShortlist(profile.code)}
+              title={isFav ? 'Remove from Shortlist' : 'Add to Shortlist'}
+              className={`p-2 rounded-full transition cursor-pointer flex items-center space-x-1 text-xs font-semibold ${
+                isFav
+                  ? 'bg-white text-[#AD3B65] shadow-md'
+                  : 'bg-white/10 hover:bg-white/20 text-white'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isFav ? 'fill-[#AD3B65]' : ''}`} />
+              <span className="hidden sm:inline">
+                {isFav
+                  ? (language === 'si' ? 'කැමති ලැයිස්තුවේ' : 'Shortlisted')
+                  : (language === 'si' ? 'කැමති කරගන්න' : 'Shortlist')}
+              </span>
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-full hover:bg-white/20 text-stone-300 hover:text-white transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Modal Scrollable Content */}
@@ -74,8 +132,40 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
               <img
                 src={profile.photoUrl}
                 alt={profile.code}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover ${
+                  profile.photoIsPrivate ? 'filter blur-md scale-110' : ''
+                }`}
               />
+              {profile.photoIsPrivate && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex flex-col items-center justify-center p-3 text-center text-white">
+                  <div className="w-9 h-9 rounded-full bg-black/60 flex items-center justify-center mb-1.5 border border-white/20 shadow">
+                    <Lock className="w-4 h-4 text-amber-300" />
+                  </div>
+                  <p className="text-xs font-semibold mb-2">
+                    {language === 'si' ? 'ඡායාරූපය රහස්‍යයි' : 'Photo Protected'}
+                  </p>
+                  {isPhotoRequested(profile.code) || photoRequested ? (
+                    <span className="text-[11px] font-medium bg-emerald-600/90 text-white px-2.5 py-1 rounded-full shadow">
+                      {language === 'si' ? 'ඉල්ලීම යවා ඇත ✓' : 'Requested ✓'}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!isAuthenticated) {
+                          router.push('/login?redirect=/browse&reason=photo_access');
+                          return;
+                        }
+                        await requestPhotoAccess(profile.code);
+                        setPhotoRequested(true);
+                      }}
+                      className="text-[11px] font-semibold bg-[#AD3B65] hover:bg-[#8f3053] text-white px-3 py-1.5 rounded-lg shadow transition cursor-pointer"
+                    >
+                      {language === 'si' ? 'බැලීමට ඉල්ලුම් කරන්න' : 'Request Access'}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 flex-1">
@@ -162,6 +252,16 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
                   <span className="text-stone-500 block text-[11px]">Porondam Compatibility:</span>
                   <span className="font-bold text-emerald-700">{profile.porondamScore ? `${profile.porondamScore} / 20 Compatible` : 'Available on request'}</span>
                 </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPorondamModal(true)}
+                    className="px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-[11px] transition shadow-xs flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-[#F3DEB3]" />
+                    <span>{language === 'si' ? 'පොරොන්දම් පරීක්ෂාව' : 'Check Porondam'}</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -245,35 +345,204 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose }) 
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="bg-stone-50 px-6 py-4 border-t border-stone-200 flex items-center justify-between gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 transition"
-          >
-            {language === 'si' ? 'වසන්න (Close)' : 'Close'}
-          </button>
+        <div className="bg-stone-50 px-6 py-4 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={onClose}
+              className="px-3 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 transition cursor-pointer"
+            >
+              {language === 'si' ? 'වසන්න (Close)' : 'Close'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowBlockModal(true)}
+              className="px-2.5 py-1.5 text-stone-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-medium transition flex items-center space-x-1 cursor-pointer"
+              title={language === 'si' ? 'මෙම සාමාජිකයා Block කරන්න' : 'Block this member'}
+            >
+              <Ban className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{language === 'si' ? 'Block කරන්න' : 'Block'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowReportModal(true)}
+              className="px-2.5 py-1.5 text-stone-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg text-xs font-medium transition flex items-center space-x-1 cursor-pointer"
+              title={language === 'si' ? 'අනිසි හැසිරීමක් වාර්තා කරන්න' : 'Report profile'}
+            >
+              <Flag className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{language === 'si' ? 'වාර්තා කරන්න' : 'Report'}</span>
+            </button>
+          </div>
 
-          <button
-            onClick={handleInterest}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-              isAccepted
-                ? 'bg-emerald-600 text-white shadow'
-                : isPending
-                ? 'bg-amber-500 text-white shadow'
-                : 'bg-[#AD3B65] hover:bg-[#972F55] text-white shadow-md shadow-[#AD3B65]/20 hover:shadow-lg'
-            }`}
-          >
-            <Heart className="w-4 h-4 fill-current" />
-            <span>
-              {isAccepted
-                ? t.profiles.contactApproved
-                : isPending
-                ? t.profiles.interestSent
-                : t.profiles.expressInterest}
-            </span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setShowBioDataModal(true)}
+              className="px-3 py-2 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              title="Printable Bio-Data"
+            >
+              <Printer className="w-3.5 h-3.5 text-[#AD3B65]" />
+              <span className="hidden sm:inline">{language === 'si' ? 'විස්තර පත්‍රිකාව (PDF)' : 'Bio-Data PDF'}</span>
+            </button>
+
+            <button
+              onClick={handleInterest}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+                isAccepted
+                  ? 'bg-emerald-600 text-white shadow'
+                  : isPending
+                  ? 'bg-amber-500 text-white shadow'
+                  : 'bg-[#AD3B65] hover:bg-[#972F55] text-white shadow-md shadow-[#AD3B65]/20 hover:shadow-lg'
+              }`}
+            >
+              <Heart className="w-4 h-4 fill-current" />
+              <span>
+                {isAccepted
+                  ? t.profiles.contactApproved
+                  : isPending
+                  ? t.profiles.interestSent
+                  : t.profiles.expressInterest}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Block Confirmation Modal */}
+      {showBlockModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-rose-100">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <Ban className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-base font-bold text-stone-900">
+                {language === 'si' ? `${profile.code} Block කරනවාද?` : `Block ${profile.code}?`}
+              </h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                {language === 'si'
+                  ? 'මෙම සාමාජිකයා Block කළ පසු ඔහුට ඔබගේ පැතිකඩ නොපෙනෙන අතර පණිවිඩ එවීමටද නොහැකි වේ.'
+                  : 'Once blocked, this member cannot see your profile or send you messages.'}
+              </p>
+            </div>
+            {blockMessage ? (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs text-center font-medium">
+                {blockMessage}
+              </div>
+            ) : (
+              <div className="flex items-center justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBlockModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl transition"
+                >
+                  {language === 'si' ? 'අවලංගුයි' : 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBlock}
+                  className="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow transition cursor-pointer"
+                >
+                  {language === 'si' ? 'ඔව්, Block කරන්න' : 'Yes, Block'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Report Inappropriate Behavior Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-amber-100">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center space-x-2 text-amber-600">
+                <AlertTriangle className="w-5 h-5" />
+                <h3 className="text-sm font-bold text-stone-900">
+                  {language === 'si' ? `${profile.code} පිළිබඳ වාර්තා කරන්න` : `Report Profile: ${profile.code}`}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowReportModal(false)}
+                className="text-stone-400 hover:text-stone-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {reportSubmitted ? (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs text-center font-medium space-y-1">
+                <CheckCircle className="w-6 h-6 text-emerald-600 mx-auto" />
+                <p>{language === 'si' ? 'ඔබගේ වාර්තාව සාර්ථකව භාරගන්නා ලදී.' : 'Your report has been submitted.'}</p>
+                <p className="text-[11px] text-emerald-600">{language === 'si' ? 'ආයතනයේ කාර්ය මණ්ඩලය විමර්ශනය කරනු ඇත.' : 'Agency staff will review and take action.'}</p>
+              </div>
+            ) : (
+              <form onSubmit={handleReportSubmit} className="space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-stone-700 block mb-1">
+                    {language === 'si' ? 'වාර්තා කිරීමට හේතුව' : 'Reason for report'}
+                  </label>
+                  <select
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-[#AD3B65]"
+                  >
+                    <option value="spam">{language === 'si' ? 'අනවශ්‍ය පණිවිඩ / Spam' : 'Spam messages'}</option>
+                    <option value="harassment">{language === 'si' ? 'නුසුදුසු / හිරිහැරකාරී හැසිරීම' : 'Harassment / Abusive'}</option>
+                    <option value="fake_profile">{language === 'si' ? 'ව්‍යාජ තොරතුරු සහිත පැතිකඩක්' : 'Fake profile / Misleading info'}</option>
+                    <option value="commercial">{language === 'si' ? 'ව්‍යාපාරික කටයුතු ප්‍රවර්ධනය' : 'Commercial solicitation'}</option>
+                    <option value="other">{language === 'si' ? 'වෙනත් හේතුවක්' : 'Other'}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-700 block mb-1">
+                    {language === 'si' ? 'විස්තරය (Description)' : 'Details'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={reportDescription}
+                    onChange={(e) => setReportDescription(e.target.value)}
+                    placeholder={language === 'si' ? 'සිදුවූ දෙය පැහැදිලි කරන්න...' : 'Please provide details...'}
+                    className="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-[#AD3B65]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100">
+                  <button
+                    type="button"
+                    onClick={() => setShowReportModal(false)}
+                    className="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl transition cursor-pointer"
+                  >
+                    {language === 'si' ? 'අවලංගුයි' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 text-xs font-bold bg-[#AD3B65] hover:bg-[#972F55] text-white rounded-xl shadow transition cursor-pointer"
+                  >
+                    {language === 'si' ? 'වාර්තාව යවන්න' : 'Submit Report'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Printable Bio-Data Sheet Modal */}
+      <BioDataModal
+        profile={profile}
+        isOpen={showBioDataModal}
+        onClose={() => setShowBioDataModal(false)}
+      />
+
+      {/* Porondam Calculator Modal */}
+      <PorondamCalculatorModal
+        isOpen={showPorondamModal}
+        onClose={() => setShowPorondamModal(false)}
+        candidateCode={profile.code}
+      />
     </div>
   );
 };

@@ -66,4 +66,24 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(HoroscopeOrder::class, 'user_id');
     }
+
+    public function shortlists(): HasMany
+    {
+        return $this->hasMany(Shortlist::class, 'user_id');
+    }
+
+    public function blockedUsers(): HasMany
+    {
+        return $this->hasMany(UserBlock::class, 'blocker_user_id');
+    }
+
+    public function blockedByUsers(): HasMany
+    {
+        return $this->hasMany(UserBlock::class, 'blocked_user_id');
+    }
+
+    public function submittedReports(): HasMany
+    {
+        return $this->hasMany(UserReport::class, 'reporter_user_id');
+    }
 }

@@ -18,6 +18,11 @@ export interface MatrimonialProfile {
   managedBy: 'Mother' | 'Father' | 'Self' | 'Guardian';
   photoUrl: string;
   photoIsPrivate: boolean;
+  photoVisibility?: 'public' | 'members_only' | 'on_request';
+  professionCategory?: string;
+  habitsSmoking?: string;
+  habitsDrinking?: string;
+  dietaryHabits?: string;
   horoscopeAvailable: boolean;
   rashi?: string;
   nekatha?: string;
@@ -204,7 +209,8 @@ export const mockProfiles: MatrimonialProfile[] = [
     maritalStatus: 'Never Married',
     managedBy: 'Mother',
     photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80',
-    photoIsPrivate: false,
+    photoIsPrivate: true,
+    photoVisibility: 'on_request',
     horoscopeAvailable: false,
     aboutCandidate: {
       en: 'British Citizen (Sri Lankan origin). Sophisticated, humble, cheerful, fluent in English and Sinhala, deeply connected to family roots.',

@@ -120,9 +120,9 @@ function LoginForm() {
               <label className="block text-xs font-bold text-[#352A30] uppercase tracking-wider">
                 {language === 'si' ? 'මුරපදය' : 'Password'}
               </label>
-              <span className="text-xs text-[#AD3B65] hover:underline cursor-pointer">
+              <Link href="/forgot-password" className="text-xs text-[#AD3B65] hover:underline cursor-pointer">
                 {language === 'si' ? 'මුරපදය අමතකද?' : 'Forgot password?'}
-              </span>
+              </Link>
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#C6A56B]">

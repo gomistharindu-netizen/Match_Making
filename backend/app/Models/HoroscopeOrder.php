@@ -31,6 +31,14 @@ class HoroscopeOrder extends Model
         'notes',
     ];
 
+    protected $appends = ['secure_report_url'];
+
+    public function getSecureReportUrlAttribute(): ?string
+    {
+        if (!$this->report_file_path) return null;
+        return app(\App\Services\StorageService::class)->getExpiringUrl($this->report_file_path, 30);
+    }
+
     protected function casts(): array
     {
         return [

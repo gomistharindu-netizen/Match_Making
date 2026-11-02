@@ -6,7 +6,7 @@ import { MatrimonialProfile } from '../data/mockProfiles';
 import { useLanguage } from '../context/LanguageContext';
 import { useDemo } from '../context/DemoContext';
 import { useAuth } from '../context/AuthContext';
-import { Heart, Sparkles, MapPin, Briefcase, GraduationCap, Globe, Check, Eye } from 'lucide-react';
+import { Heart, Sparkles, MapPin, Briefcase, GraduationCap, Globe, Check, Eye, Lock } from 'lucide-react';
 
 interface ProfileCardProps {
   profile: MatrimonialProfile;
@@ -15,12 +15,13 @@ interface ProfileCardProps {
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }) => {
   const { language, t } = useLanguage();
-  const { sendInterest } = useDemo();
+  const { sendInterest, isShortlisted, toggleShortlist } = useDemo();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
   const isPending = profile.interestStatus === 'pending';
   const isAccepted = profile.interestStatus === 'accepted';
+  const isFav = isShortlisted(profile.code);
 
   const handleInterest = () => {
     if (!isAuthenticated) {
@@ -37,8 +38,22 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
         <img
           src={profile.photoUrl}
           alt={`Profile ${profile.code}`}
-          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+          className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${
+            profile.photoIsPrivate ? 'filter blur-md scale-110' : ''
+          }`}
         />
+
+        {/* Center Lock Badge if Photo is Private */}
+        {profile.photoIsPrivate && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white/90 p-4 text-center z-[5] pointer-events-none">
+            <div className="w-10 h-10 rounded-full bg-black/55 backdrop-blur-md flex items-center justify-center mb-1.5 border border-white/20 shadow">
+              <Lock className="w-5 h-5 text-amber-300" />
+            </div>
+            <span className="text-[11px] font-semibold bg-black/60 px-2.5 py-0.5 rounded-full backdrop-blur border border-white/10 shadow">
+              {language === 'si' ? 'ඡායාරූපය රහස්‍ය කර ඇත' : 'Photo Protected'}
+            </span>
+          </div>
+        )}
 
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
@@ -56,6 +71,21 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onOpenModal }
               </span>
             )}
           </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleShortlist(profile.code);
+            }}
+            title={isFav ? (language === 'si' ? 'කැමති ලැයිස්තුවෙන් ඉවත් කරන්න' : 'Remove from Shortlist') : (language === 'si' ? 'කැමති ලැයිස්තුවට එක්කරන්න' : 'Save to Shortlist')}
+            className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-md cursor-pointer ${
+              isFav
+                ? 'bg-[#AD3B65] text-white ring-2 ring-white/50 scale-105'
+                : 'bg-black/40 text-white hover:bg-black/65 hover:text-rose-300'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isFav ? 'fill-current text-white' : ''}`} />
+          </button>
         </div>
 
         {/* Bottom Details on Image */}

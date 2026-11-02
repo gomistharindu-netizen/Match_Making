@@ -8,6 +8,8 @@ use App\Models\Conversation;
 use App\Models\Interest;
 use App\Models\MemberProfile;
 use App\Models\Message;
+use App\Models\UserBlock;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -142,6 +144,24 @@ class ChatController extends Controller
             })
             ->firstOrFail();
 
+        $partnerProfileId = $conv->profile_one_id === $profile->id ? $conv->profile_two_id : $conv->profile_one_id;
+        $partnerProfile = MemberProfile::find($partnerProfileId);
+
+        // Check if there is an active block between the two users
+        if ($partnerProfile) {
+            $isBlocked = UserBlock::where(function ($q) use ($request, $partnerProfile) {
+                $q->where('blocker_user_id', $request->user()->id)
+                  ->where('blocked_user_id', $partnerProfile->owner_user_id);
+            })->orWhere(function ($q) use ($request, $partnerProfile) {
+                $q->where('blocker_user_id', $partnerProfile->owner_user_id)
+                  ->where('blocked_user_id', $request->user()->id);
+            })->exists();
+
+            if ($isBlocked) {
+                return response()->json(['message' => 'Unable to send message. One of the accounts has blocked communications.'], 403);
+            }
+        }
+
         $msg = Message::create([
             'conversation_id' => $conv->id,
             'sender_profile_id' => $profile->id,
@@ -184,6 +204,19 @@ class ChatController extends Controller
             return response()->json(['message' => 'You cannot send interest to your own profile'], 400);
         }
 
+        // Check if blocked
+        $isBlocked = UserBlock::where(function ($q) use ($request, $targetProfile) {
+            $q->where('blocker_user_id', $request->user()->id)
+              ->where('blocked_user_id', $targetProfile->owner_user_id);
+        })->orWhere(function ($q) use ($request, $targetProfile) {
+            $q->where('blocker_user_id', $targetProfile->owner_user_id)
+              ->where('blocked_user_id', $request->user()->id);
+        })->exists();
+
+        if ($isBlocked) {
+            return response()->json(['message' => 'Cannot express interest to this profile.'], 403);
+        }
+
         $existing = Interest::where('sender_profile_id', $myProfile->id)
             ->where('receiver_profile_id', $targetProfile->id)
             ->first();
@@ -198,6 +231,11 @@ class ChatController extends Controller
             'status' => 'pending',
             'sent_at' => now(),
         ]);
+
+        // Send SMS Alert to target recipient
+        if ($targetProfile->owner) {
+            app(NotificationService::class)->notifyInterestReceived($targetProfile->owner, $myProfile);
+        }
 
         return response()->json([
             'message' => 'Interest expressed successfully',
@@ -286,6 +324,12 @@ class ChatController extends Controller
                 'released_at' => now(),
             ]
         );
+
+        // Send SMS Alert to grantee
+        $partnerProfile = MemberProfile::find($partnerProfileId);
+        if ($partnerProfile && $partnerProfile->owner) {
+            app(NotificationService::class)->notifyContactReleased($partnerProfile->owner, $myProfile);
+        }
 
         return response()->json([
             'message' => 'Contact details released to partner',

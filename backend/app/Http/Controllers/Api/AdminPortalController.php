@@ -9,6 +9,8 @@ use App\Models\HoroscopeOrder;
 use App\Models\MemberProfile;
 use App\Models\PaymentOrder;
 use App\Models\User;
+use App\Models\UserReport;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -155,12 +157,16 @@ class AdminPortalController extends Controller
             $request->validate([
                 'report_file' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
             ]);
-            $path = $request->file('report_file')->store('horoscope_reports', 'public');
+            $path = app(\App\Services\StorageService::class)->storeSecure($request->file('report_file'), 'horoscope_reports');
             $order->report_file_path = $path;
             $order->status = 'completed';
         }
 
         $order->save();
+
+        if ($order->status === 'completed') {
+            app(NotificationService::class)->notifyHoroscopeReportReady($order);
+        }
 
         return response()->json([
             'success' => true,
@@ -196,6 +202,25 @@ class AdminPortalController extends Controller
         if ($slip->paymentOrder) {
             $slip->paymentOrder->payment_status = 'paid';
             $slip->paymentOrder->save();
+
+            // If membership payment, activate user membership
+            if ($slip->paymentOrder->service_type === 'membership' && $slip->paymentOrder->user_id) {
+                \App\Models\Membership::updateOrCreate(
+                    ['user_id' => $slip->paymentOrder->user_id],
+                    [
+                        'payment_order_id' => $slip->paymentOrder->id,
+                        'membership_tier' => 'lifetime',
+                        'activation_source' => 'bank_transfer',
+                        'activated_at' => now(),
+                    ]
+                );
+
+                $user = User::find($slip->paymentOrder->user_id);
+                if ($user) {
+                    $user->update(['account_status' => 'active']);
+                    app(NotificationService::class)->notifyMembershipActivated($user);
+                }
+            }
         }
 
         return response()->json([
@@ -322,5 +347,54 @@ class AdminPortalController extends Controller
         }
 
         return response()->json($query->paginate($request->input('per_page', 25)));
+    }
+
+    public function reports(Request $request): JsonResponse
+    {
+        if ($deny = $this->checkAccess($request)) return $deny;
+
+        $query = UserReport::with(['reporter.profile', 'reported.profile', 'resolver'])->latest();
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        return response()->json($query->paginate($request->input('per_page', 25)));
+    }
+
+    public function updateReportStatus(Request $request, $id): JsonResponse
+    {
+        if ($deny = $this->checkAccess($request)) return $deny;
+
+        $report = UserReport::findOrFail($id);
+
+        $validated = $request->validate([
+            'status' => 'required|in:pending,reviewed,dismissed,action_taken',
+            'admin_notes' => 'nullable|string|max:1000',
+            'ban_user' => 'nullable|boolean',
+        ]);
+
+        $report->update([
+            'status' => $validated['status'],
+            'admin_notes' => $validated['admin_notes'] ?? $report->admin_notes,
+            'resolved_by_user_id' => $request->user()->id,
+            'resolved_at' => now(),
+        ]);
+
+        if (!empty($validated['ban_user']) && $validated['ban_user'] === true) {
+            $offender = User::find($report->reported_user_id);
+            if ($offender) {
+                $offender->update(['account_status' => 'suspended']);
+                $offender->tokens()->delete();
+                if ($offender->profile) {
+                    $offender->profile->update(['publication_status' => 'rejected', 'is_paused' => true]);
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => 'Report updated successfully.',
+            'report' => $report->fresh(['reporter.profile', 'reported.profile']),
+        ]);
     }
 }

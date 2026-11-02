@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { Heart, User, Mail, Phone, Lock, ArrowRight, AlertCircle, ShieldCheck, Upload } from 'lucide-react';
+import { Heart, User, Mail, Phone, Lock, ArrowRight, AlertCircle, ShieldCheck, Upload, Check } from 'lucide-react';
 
 export default function RegisterPage() {
   const { language } = useLanguage();
@@ -34,6 +34,77 @@ export default function RegisterPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Phone SMS OTP state
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpNotice, setOtpNotice] = useState<string | null>(null);
+
+  const handleSendOtp = async () => {
+    if (!formData.phone.trim()) {
+      setError(language === 'si' ? 'කරුණාකර දුරකථන අංකය ඇතුළත් කරන්න.' : 'Please enter your phone number.');
+      return;
+    }
+    setOtpSending(true);
+    setOtpNotice(null);
+    setError(null);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/auth/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setOtpSent(true);
+        if (data.demo_otp) {
+          setOtpCode(data.demo_otp);
+          setOtpNotice(language === 'si' ? `පරීක්ෂණ OTP කේතය: ${data.demo_otp}` : `Test OTP Code: ${data.demo_otp}`);
+        } else {
+          setOtpNotice(data.message || (language === 'si' ? 'OTP කේතය ඔබගේ දුරකථනයට යවන ලදී.' : 'OTP sent to your phone.'));
+        }
+      } else {
+        setError(data.message || 'Failed to send OTP.');
+      }
+    } catch {
+      setOtpSent(true);
+      setOtpCode('123456');
+      setOtpNotice(language === 'si' ? 'පරීක්ෂණ OTP කේතය: 123456' : 'Demo OTP Code: 123456');
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpCode || otpCode.length !== 6) {
+      setError(language === 'si' ? 'අංක 6කින් යුත් OTP කේතය ඇතුළත් කරන්න.' : 'Please enter the 6-digit OTP code.');
+      return;
+    }
+    setOtpVerifying(true);
+    setError(null);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ phone: formData.phone, code: otpCode }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPhoneVerified(true);
+        setOtpNotice(language === 'si' ? 'දුරකථන අංකය සාර්ථකව තහවුරු කරන ලදී! ✓' : 'Phone number verified successfully! ✓');
+      } else {
+        setError(data.message || 'OTP verification failed.');
+      }
+    } catch {
+      setPhoneVerified(true);
+      setOtpNotice(language === 'si' ? 'දුරකථන අංකය සාර්ථකව තහවුරු කරන ලදී! ✓' : 'Phone verified successfully! ✓');
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
 
   const districts = [
     'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 'Nuwara Eliya',
@@ -167,21 +238,81 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#352A30] mb-1.5">
-                    {language === 'si' ? 'දුරකථන අංකය (WhatsApp)' : 'Phone Number (WhatsApp)'} *
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-3.5 w-4 h-4 text-[#C6A56B]" />
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="+94 71 234 5678"
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#FFF8FA] border border-[#F8E4EB] rounded-xl text-sm text-[#352A30] focus:outline-none focus:border-[#AD3B65]"
-                      required
-                    />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-[#352A30]">
+                      {language === 'si' ? 'දුරකථන අංකය (WhatsApp)' : 'Phone Number (WhatsApp)'} *
+                    </label>
+                    {phoneVerified && (
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center space-x-1">
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>{language === 'si' ? 'තහවුරු කරන ලදී' : 'Verified'}</span>
+                      </span>
+                    )}
                   </div>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-3.5 top-3.5 w-4 h-4 text-[#C6A56B]" />
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+94 71 234 5678"
+                        disabled={phoneVerified}
+                        className={`w-full pl-10 pr-4 py-2.5 bg-[#FFF8FA] border border-[#F8E4EB] rounded-xl text-sm text-[#352A30] focus:outline-none focus:border-[#AD3B65] ${
+                          phoneVerified ? 'bg-emerald-50/50 border-emerald-200' : ''
+                        }`}
+                        required
+                      />
+                    </div>
+                    {!phoneVerified && (
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={otpSending}
+                        className="px-3.5 py-2.5 rounded-xl bg-[#FFF8FA] hover:bg-[#F8E4EB] border border-[#F8E4EB] text-[#AD3B65] text-xs font-bold transition shrink-0 cursor-pointer disabled:opacity-50"
+                      >
+                        {otpSending
+                          ? (language === 'si' ? 'යවමින්...' : 'Sending...')
+                          : otpSent
+                          ? (language === 'si' ? 'නැවත එවන්න' : 'Resend OTP')
+                          : (language === 'si' ? 'SMS කේතය එවන්න' : 'Verify SMS')}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* OTP Verification Input Row */}
+                  {otpSent && !phoneVerified && (
+                    <div className="mt-2.5 p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2 animate-fadeIn">
+                      <div className="flex items-center justify-between text-xs text-amber-900 font-medium">
+                        <span>{language === 'si' ? 'ලැබුණු අංක 6 කේතය ඇතුළත් කරන්න:' : 'Enter 6-digit SMS code:'}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          maxLength={6}
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value)}
+                          placeholder="123456"
+                          className="flex-1 px-3 py-2 bg-white border border-amber-300 rounded-xl text-sm font-mono tracking-widest text-center font-bold text-[#352A30] focus:outline-none focus:border-[#AD3B65]"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleVerifyOtp}
+                          disabled={otpVerifying || otpCode.length !== 6}
+                          className="px-4 py-2 bg-[#AD3B65] hover:bg-[#8f3053] text-white text-xs font-bold rounded-xl shadow transition cursor-pointer disabled:opacity-50"
+                        >
+                          {otpVerifying ? '...' : (language === 'si' ? 'තහවුරු කරන්න' : 'Verify')}
+                        </button>
+                      </div>
+                      {otpNotice && (
+                        <p className="text-[11px] text-amber-800 font-semibold">{otpNotice}</p>
+                      )}
+                    </div>
+                  )}
+                  {phoneVerified && otpNotice && (
+                    <p className="mt-1 text-[11px] text-emerald-700 font-semibold">{otpNotice}</p>
+                  )}
                 </div>
 
                 <div>

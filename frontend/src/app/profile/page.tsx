@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
+import { useDemo } from '../../context/DemoContext';
 import {
   Camera,
   Upload,
@@ -20,12 +21,15 @@ import {
   MapPin,
   Briefcase,
   GraduationCap,
-  ChevronRight
+  ChevronRight,
+  Check,
+  X
 } from 'lucide-react';
 
 export default function ProfilePage() {
   const { language } = useLanguage();
   const { profile, isAuthenticated, isLoading, uploadPhoto, updateProfileDetails } = useAuth();
+  const { photoRequests, respondPhotoRequest, fetchPhotoRequests } = useDemo();
   const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -62,6 +66,9 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (profile) {
+      if ((profile as any).photo_visibility) {
+        setPhotoVisibility((profile as any).photo_visibility);
+      }
       setFormData({
         district: profile.district || 'Colombo',
         city: profile.city || '',
@@ -112,7 +119,10 @@ export default function ProfilePage() {
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    const res = await updateProfileDetails(formData);
+    const res = await updateProfileDetails({
+      ...formData,
+      photo_visibility: photoVisibility,
+    });
     setSaving(false);
 
     if (res.success) {
@@ -283,13 +293,13 @@ export default function ProfilePage() {
                     <input
                       type="radio"
                       name="visibility"
-                      value="hidden"
-                      checked={photoVisibility === 'hidden'}
-                      onChange={() => setPhotoVisibility('hidden')}
+                      value="on_request"
+                      checked={photoVisibility === 'on_request'}
+                      onChange={() => setPhotoVisibility('on_request')}
                       className="text-[#AD3B65] focus:ring-[#AD3B65]"
                     />
                     <Lock className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{language === 'si' ? 'යෝජනාව පිළිගත් පසු පමණි (Hidden)' : 'Hidden until Interest Accepted'}</span>
+                    <span>{language === 'si' ? 'ඉල්ලුම් කරන අයට පමණි / Blur කර ඇත (On Request)' : 'On Request (Blurred until approved)'}</span>
                   </label>
                 </div>
               </div>
@@ -319,6 +329,80 @@ export default function ProfilePage() {
                   {formData.partner_preferences || (language === 'si' ? 'සහකරු පිළිබඳ අපේක්ෂා සටහන් කර නැත' : 'No preferences set')}
                 </p>
               </div>
+            </div>
+
+            {/* Photo Access Requests Card */}
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-5 border border-[#F8E4EB] shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2 text-xs font-bold text-[#AD3B65] uppercase tracking-wider">
+                  <Shield className="w-3.5 h-3.5 text-[#C6A56B]" />
+                  <span>{language === 'si' ? 'ලැබුණු ඡායාරූප ඉල්ලීම්' : 'Photo Access Requests'}</span>
+                </div>
+                {photoRequests.received.filter((r) => r.status === 'pending').length > 0 && (
+                  <span className="bg-[#AD3B65] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {photoRequests.received.filter((r) => r.status === 'pending').length}
+                  </span>
+                )}
+              </div>
+
+              {photoRequests.received.length === 0 ? (
+                <p className="text-xs text-stone-500 py-3 text-center bg-stone-50 rounded-2xl border border-stone-100">
+                  {language === 'si' ? 'තවමත් ඡායාරූප ඉල්ලීම් නැත' : 'No photo requests received yet'}
+                </p>
+              ) : (
+                <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                  {photoRequests.received.map((req) => (
+                    <div
+                      key={req.id}
+                      className="p-3 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-between gap-2"
+                    >
+                      <div>
+                        <span className="text-xs font-bold text-[#352A30] block">
+                          {req.requester_code || req.requester_name || 'Member'}
+                        </span>
+                        <span className="text-[10px] text-stone-500">
+                          {new Date(req.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div>
+                        {req.status === 'pending' ? (
+                          <div className="flex items-center space-x-1.5">
+                            <button
+                              type="button"
+                              onClick={() => respondPhotoRequest(req.id, 'approved')}
+                              title={language === 'si' ? 'අනුමත කරන්න' : 'Approve'}
+                              className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center space-x-1 cursor-pointer transition shadow"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span className="text-[11px]">{language === 'si' ? 'අනුමත' : 'Allow'}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => respondPhotoRequest(req.id, 'rejected')}
+                              title={language === 'si' ? 'ප්‍රතික්ෂේප කරන්න' : 'Reject'}
+                              className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold flex items-center space-x-1 cursor-pointer transition border border-rose-200"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              req.status === 'approved'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-stone-200 text-stone-600'
+                            }`}
+                          >
+                            {req.status === 'approved'
+                              ? (language === 'si' ? 'අනුමතයි' : 'Approved')
+                              : (language === 'si' ? 'ප්‍රතික්ෂේපයි' : 'Rejected')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

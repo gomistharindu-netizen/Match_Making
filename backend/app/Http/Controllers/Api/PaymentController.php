@@ -44,7 +44,7 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Payment order not found for this code'], 404);
         }
 
-        $slipPath = $request->file('slip')->store('bank_slips', 'public');
+        $slipPath = app(\App\Services\StorageService::class)->storeSecure($request->file('slip'), 'bank_slips');
 
         $slip = BankSlip::create([
             'payment_order_id' => $paymentOrder->id,

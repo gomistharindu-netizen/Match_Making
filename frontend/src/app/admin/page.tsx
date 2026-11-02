@@ -27,6 +27,8 @@ import {
   X,
   Menu,
   Globe,
+  Flag,
+  Ban,
 } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
@@ -151,7 +153,7 @@ export default function AdminPortalPage() {
   const { user, token, isAuthenticated, login, logout, isLoading } = useAuth();
 
   // Active Admin Tab & Mobile Sidebar
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profiles' | 'horoscope' | 'slips' | 'settings' | 'users'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profiles' | 'horoscope' | 'slips' | 'settings' | 'users' | 'reports'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Login Gate State (for unauthenticated or non-admin users)
@@ -197,6 +199,11 @@ export default function AdminPortalPage() {
   const [userRoleFilter, setUserRoleFilter] = useState('all');
   const [userSearch, setUserSearch] = useState('');
   const [loadingUsers, setLoadingUsers] = useState(false);
+
+  // User Reports State
+  const [reportsList, setReportsList] = useState<any[]>([]);
+  const [reportStatusFilter, setReportStatusFilter] = useState('all');
+  const [loadingReports, setLoadingReports] = useState(false);
 
   // Action message toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -452,6 +459,44 @@ export default function AdminPortalPage() {
     }
   }, [token, isAdminOrStaff, userRoleFilter, userSearch, getAuthHeaders]);
 
+  // Fetch Reports
+  const fetchReports = useCallback(async () => {
+    if (!token || !isAdminOrStaff) return;
+    setLoadingReports(true);
+    try {
+      const params = new URLSearchParams();
+      if (reportStatusFilter !== 'all') params.append('status', reportStatusFilter);
+      const res = await fetch(`${API_BASE_URL}/admin/reports?${params.toString()}`, { headers: getAuthHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setReportsList(data.data || data);
+      }
+    } catch {
+      console.log('Error loading reports');
+    } finally {
+      setLoadingReports(false);
+    }
+  }, [token, isAdminOrStaff, reportStatusFilter, getAuthHeaders]);
+
+  const handleUpdateReportStatus = async (reportId: number, status: string, banUser: boolean = false) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/reports/${reportId}/status`, {
+        method: 'PUT',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status, ban_user: banUser }),
+      });
+      if (res.ok) {
+        showToast(banUser ? 'User suspended and report resolved!' : 'Report status updated!');
+        fetchReports();
+      }
+    } catch {
+      alert('Error updating report status');
+    }
+  };
+
   // Trigger data load on tab change or auth status
   useEffect(() => {
     if (!isAdminOrStaff) return;
@@ -468,8 +513,10 @@ export default function AdminPortalPage() {
       fetchSettings();
     } else if (activeTab === 'users') {
       fetchUsers();
+    } else if (activeTab === 'reports') {
+      fetchReports();
     }
-  }, [activeTab, isAdminOrStaff, fetchStats, fetchProfiles, fetchHoroscopes, fetchSlips, fetchSettings, fetchUsers]);
+  }, [activeTab, isAdminOrStaff, fetchStats, fetchProfiles, fetchHoroscopes, fetchSlips, fetchSettings, fetchUsers, fetchReports]);
 
   // Loading state
   if (isLoading) {
@@ -702,6 +749,7 @@ export default function AdminPortalPage() {
             { id: 'horoscope', label: 'කේන්ද්‍ර පරීක්ෂා (Horoscopes)', icon: Sparkles, badge: stats?.metrics.pending_horoscopes },
             { id: 'slips', label: 'බැංකු රිසිට්පත් (Bank Slips)', icon: Receipt, badge: stats?.metrics.pending_slips },
             { id: 'settings', label: 'පද්ධති සැකසුම් (Settings)', icon: Sliders },
+            { id: 'reports', label: 'පැමිණිලි හා වාර්තා (Reports)', icon: Flag },
             { id: 'users', label: 'පරිශීලකයන් (Users & Staff)', icon: ShieldCheck },
           ].map((item) => {
             const Icon = item.icon;
@@ -1847,6 +1895,126 @@ export default function AdminPortalPage() {
                           </td>
                           <td className="py-3.5 px-4 text-stone-400">
                             {new Date(u.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: REPORTS */}
+        {activeTab === 'reports' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#352A30]">
+                  පැමිණිලි හා වාර්තා කළමනාකරණය (User Reports & Safety)
+                </h1>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  සාමාජිකයින් විසින් යොමුකරන ලද අනිසි හැසිරීම් වාර්තා පරීක්ෂා කර පියවර ගන්න.
+                </p>
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center gap-2">
+                {['all', 'pending', 'action_taken', 'dismissed'].map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setReportStatusFilter(st)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition capitalize cursor-pointer ${
+                      reportStatusFilter === st
+                        ? 'bg-[#AD3B65] text-white shadow-sm'
+                        : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                    }`}
+                  >
+                    {st === 'all' ? 'සියල්ල (All)' : st === 'pending' ? 'පොරොත්තුවේ (Pending)' : st === 'action_taken' ? 'පියවර ගත් (Action Taken)' : 'ඉවත දැමූ (Dismissed)'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Reports Table Card */}
+            <div className="bg-white rounded-3xl border border-[#F8E4EB] shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-[#352A30]">
+                  <thead className="bg-[#FFF8FA] border-b border-[#F8E4EB] text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                    <tr>
+                      <th className="py-3.5 px-4">වාර්තා කළ අය (Reporter)</th>
+                      <th className="py-3.5 px-4">චූදිත පැතිකඩ (Reported User)</th>
+                      <th className="py-3.5 px-4">හේතුව (Reason)</th>
+                      <th className="py-3.5 px-4">විස්තරය (Description)</th>
+                      <th className="py-3.5 px-4">තත්ත්වය (Status)</th>
+                      <th className="py-3.5 px-4 text-right">ක්‍රියාමාර්ග (Actions)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {loadingReports ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center text-stone-400">
+                          <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#AD3B65]" />
+                          වාර්තා පූරණය වෙමින් පවතී...
+                        </td>
+                      </tr>
+                    ) : reportsList.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center text-stone-400">
+                          පැමිණිලි හෝ වාර්තා කිසිවක් හමු නොවීය.
+                        </td>
+                      </tr>
+                    ) : (
+                      reportsList.map((r: any) => (
+                        <tr key={r.id} className="hover:bg-[#FFF8FA]/60 transition">
+                          <td className="py-3.5 px-4 font-bold">
+                            <div>{r.reporter?.name}</div>
+                            <div className="text-[10px] text-stone-400 font-mono">{r.reporter?.profile?.profile_code || r.reporter?.email}</div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="font-mono font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                              {r.reported?.profile?.profile_code || r.reported?.email}
+                            </span>
+                            <div className="text-[10px] text-stone-500">{r.reported?.name}</div>
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold capitalize text-stone-700">
+                            {r.reason_category}
+                          </td>
+                          <td className="py-3.5 px-4 max-w-xs text-stone-600 break-words">
+                            {r.description}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              r.status === 'pending'
+                                ? 'bg-amber-100 text-amber-800'
+                                : r.status === 'action_taken'
+                                ? 'bg-rose-100 text-rose-800'
+                                : 'bg-stone-100 text-stone-600'
+                            }`}>
+                              {r.status}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                            {r.status === 'pending' && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateReportStatus(r.id, 'action_taken', true)}
+                                  className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-sm transition cursor-pointer"
+                                  title="Suspend account and ban"
+                                >
+                                  Suspend Account
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateReportStatus(r.id, 'dismissed', false)}
+                                  className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-[11px] font-bold transition cursor-pointer"
+                                >
+                                  Dismiss
+                                </button>
+                              </>
+                            )}
                           </td>
                         </tr>
                       ))

@@ -27,12 +27,20 @@ class MemberProfile extends Model
         'height_inches',
         'education_level',
         'profession',
+        'profession_category',
         'employed_in',
         'monthly_income_lkr',
         'family_background',
         'partner_preferences',
+        'habits_smoking',
+        'habits_drinking',
+        'dietary_habits',
+        'overseas_country',
         'horoscope_available',
+        'rashi',
+        'nekatha',
         'primary_photo_url',
+        'photo_visibility',
         'publication_status',
         'managed_by_type',
         'is_paused',
@@ -87,6 +95,16 @@ class MemberProfile extends Model
     public function viewers(): HasMany
     {
         return $this->hasMany(RecentlyViewed::class, 'viewed_profile_id');
+    }
+
+    public function shortlistedBy(): HasMany
+    {
+        return $this->hasMany(Shortlist::class, 'member_profile_id');
+    }
+
+    public function photoAccessRequests(): HasMany
+    {
+        return $this->hasMany(PhotoAccessRequest::class, 'target_profile_id');
     }
 
     public function getAgeAttribute(): ?int

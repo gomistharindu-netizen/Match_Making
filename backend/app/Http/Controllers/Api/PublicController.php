@@ -7,6 +7,7 @@ use App\Models\AdminSetting;
 use App\Models\HoroscopeOrder;
 use App\Models\MemberProfile;
 use App\Models\PaymentOrder;
+use App\Services\PorondamService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -90,6 +91,22 @@ class PublicController extends Controller
             $query->where('profession', 'like', '%' . $request->profession . '%');
         }
 
+        if ($request->filled('profession_category')) {
+            $query->where('profession_category', $request->profession_category);
+        }
+
+        if ($request->filled('habits_drinking')) {
+            $query->where('habits_drinking', $request->habits_drinking);
+        }
+
+        if ($request->filled('dietary_habits')) {
+            $query->where('dietary_habits', $request->dietary_habits);
+        }
+
+        if ($request->filled('overseas_country')) {
+            $query->where('overseas_country', $request->overseas_country);
+        }
+
         if ($request->filled('horoscope')) {
             $query->where('horoscope_available', filter_var($request->horoscope, FILTER_VALIDATE_BOOLEAN));
         }
@@ -104,11 +121,25 @@ class PublicController extends Controller
             $query->where('birth_date', '>=', $minBirthDate);
         }
 
+        // Exclude blocked users if authenticated
+        $currentUser = $request->user('sanctum');
+        if ($currentUser) {
+            $blockedUserIds = \App\Models\UserBlock::where('blocker_user_id', $currentUser->id)
+                ->pluck('blocked_user_id')
+                ->merge(\App\Models\UserBlock::where('blocked_user_id', $currentUser->id)->pluck('blocker_user_id'));
+            if ($blockedUserIds->isNotEmpty()) {
+                $query->whereNotIn('owner_user_id', $blockedUserIds);
+            }
+        }
+
         $perPage = min((int) $request->get('per_page', 12), 50);
         $paginated = $query->latest()->paginate($perPage);
 
         // Transform records to strip any private identifying attributes
-        $data = $paginated->getCollection()->map(function ($profile) {
+        $data = $paginated->getCollection()->map(function ($profile) use ($currentUser) {
+            $isPhotoPrivate = $profile->photo_visibility === 'on_request'
+                || ($profile->photo_visibility === 'members_only' && !$currentUser);
+
             return [
                 'id' => $profile->id,
                 'profile_code' => $profile->profile_code,
@@ -125,12 +156,21 @@ class PublicController extends Controller
                 'height_inches' => $profile->height_inches,
                 'education_level' => $profile->education_level,
                 'profession' => $profile->profession,
+                'profession_category' => $profile->profession_category,
                 'employed_in' => $profile->employed_in,
                 'monthly_income_lkr' => $profile->monthly_income_lkr,
                 'family_background' => $profile->family_background,
                 'partner_preferences' => $profile->partner_preferences,
+                'habits_smoking' => $profile->habits_smoking,
+                'habits_drinking' => $profile->habits_drinking,
+                'dietary_habits' => $profile->dietary_habits,
+                'overseas_country' => $profile->overseas_country,
                 'horoscope_available' => $profile->horoscope_available,
+                'rashi' => $profile->rashi,
+                'nekatha' => $profile->nekatha,
                 'primary_photo_url' => $profile->primary_photo_url,
+                'photo_visibility' => $profile->photo_visibility ?? 'public',
+                'photo_is_private' => $isPhotoPrivate,
                 'managed_by_type' => $profile->managed_by_type,
             ];
         });
@@ -177,12 +217,22 @@ class PublicController extends Controller
             'height_inches' => $profile->height_inches,
             'education_level' => $profile->education_level,
             'profession' => $profile->profession,
+            'profession_category' => $profile->profession_category,
             'employed_in' => $profile->employed_in,
             'monthly_income_lkr' => $profile->monthly_income_lkr,
             'family_background' => $profile->family_background,
             'partner_preferences' => $profile->partner_preferences,
+            'habits_smoking' => $profile->habits_smoking,
+            'habits_drinking' => $profile->habits_drinking,
+            'dietary_habits' => $profile->dietary_habits,
+            'overseas_country' => $profile->overseas_country,
             'horoscope_available' => $profile->horoscope_available,
+            'rashi' => $profile->rashi,
+            'nekatha' => $profile->nekatha,
             'primary_photo_url' => $profile->primary_photo_url,
+            'photo_visibility' => $profile->photo_visibility ?? 'public',
+            'photo_is_private' => $profile->photo_visibility === 'on_request'
+                || ($profile->photo_visibility === 'members_only' && !$request->user('sanctum')),
             'photos' => $profile->photos->map(fn($p) => [
                 'id' => $p->id,
                 'url' => $p->file_path,
@@ -283,5 +333,27 @@ class PublicController extends Controller
             'report_file_url' => $order->report_file_path ? url('storage/' . $order->report_file_path) : null,
             'created_at' => $order->created_at->toIso8601String(),
         ]);
+    }
+
+    /**
+     * Instant 10/20 Porondam Compatibility Check
+     */
+    public function checkPorondam(Request $request, PorondamService $porondamService): JsonResponse
+    {
+        $validated = $request->validate([
+            'bride_nakatha' => 'required|integer|min:1|max:27',
+            'groom_nakatha' => 'required|integer|min:1|max:27',
+            'bride_rashi' => 'nullable|integer|min:1|max:12',
+            'groom_rashi' => 'nullable|integer|min:1|max:12',
+        ]);
+
+        $result = $porondamService->match(
+            $validated['bride_nakatha'],
+            $validated['groom_nakatha'],
+            $validated['bride_rashi'] ?? null,
+            $validated['groom_rashi'] ?? null
+        );
+
+        return response()->json($result);
     }
 }
